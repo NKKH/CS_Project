@@ -33,6 +33,8 @@ int nbJumps = ((2 * ((BMP_WIDTH - 2)/innerFrameSize)) - 1);
 int jumpSize = (innerFrameSize/2);
 int outerFrameSize = (innerFrameSize + 2);
 
+int jumps = BMP_HEIGTH/innerFrameSize;
+
 
 
 
@@ -91,7 +93,7 @@ void eroder(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char co
             erode = 1;
           }
 
-          else if (x + 1 > BMP_WIDTH || copy_image[x + 1][y] == 0)
+          else if (x + 1 >= BMP_WIDTH || copy_image[x + 1][y] == 0)
           {
 
             erode = 1;
@@ -103,7 +105,7 @@ void eroder(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char co
             erode = 1;
           }
 
-          else if (y + 1 > BMP_HEIGTH || copy_image[x][y + 1] == 0)
+          else if (y + 1 >= BMP_HEIGTH || copy_image[x][y + 1] == 0)
           {
 
             erode = 1;
@@ -137,11 +139,11 @@ void eroder(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char co
 
 void capture(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH]) {
 
-    for (int i = 0; i < nbJumps; i++) {
-      for (int j = 0; j < nbJumps; j++) {
+    for (int i = 0; i < BMP_WIDTH-12; i++) {
+      for (int j = 0; j < BMP_HEIGTH-12; j++) {
 
-        if (checkOuterFrame(erosion_image, i*jumpSize, j*jumpSize)  == 1) {
-            checkInnerFrame(erosion_image, (i*jumpSize) + 1, (j*jumpSize) + 1);
+        if (checkOuterFrame(erosion_image, i, j)  == 1) {
+            checkInnerFrame(erosion_image, i + 1, j + 1);
         }
       }
     }
@@ -152,7 +154,6 @@ void capture(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH]) {
 int checkOuterFrame(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], int iInitial, int jInitial) {
 
   for (int i = iInitial; i < iInitial + innerFrameSize + 2; i++) {
-
     if (erosion_image[i][jInitial] == 255) {
       return 0;
     }
@@ -160,11 +161,9 @@ int checkOuterFrame(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], int iIni
     if (erosion_image[i][jInitial + innerFrameSize + 1]== 255) {
       return 0;
     }
-
   }
 
   for (int j = jInitial; j < iInitial + innerFrameSize + 2; j++) {
-
     if (erosion_image[iInitial][j] == 255) {
       return 0;
     }
@@ -180,14 +179,12 @@ void checkInnerFrame(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], int iIn
   unsigned char whiteExist=0;
     for (int i = iInitial; i < iInitial + innerFrameSize; i++) {
       for (int j = jInitial; j < jInitial + innerFrameSize; j++) {
-
         if (erosion_image[i][j] == 255) {
           erosion_image[iInitial][jInitial]=0;
           whiteExist=1;
           /* counter ++;
           paintBlackSquare(erosion_image, iInitial, jInitial); */
         }
-
       }
     }
     if(whiteExist){
@@ -268,7 +265,6 @@ void finalImage(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS],i
     input_image[x][(y - (innerFrameSize/2)) + k][0] = 255;
     input_image[x][(y - (innerFrameSize/2)) + k][1] = 0;
     input_image[x][(y - (innerFrameSize/2)) + k][2] = 0;
-    
   }
 }
 
