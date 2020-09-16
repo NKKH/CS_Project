@@ -1,6 +1,8 @@
 //To compile (linux/mac): gcc cbmp.c main.c -o main.out -std=c99
 //To run (linux/mac): ./main.out test1.bmp test1_grey.bmp
 
+
+//cd C:\Users\Admin\Desktop\Computer systems\Project\CS_Project
 //To compile (win): gcc cbmp.c main.c -o main.exe -std=c99
 //To run (win): main.exe test1.bmp test1_grey.bmp
 
@@ -13,6 +15,7 @@ void capture(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], in
 void checkInnerFrame(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int innerFrameSize, int iInitial, int jInitial);
 int checkOuterFrame(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int innerFrameSize, int iInitial, int jInitial);
 void paintBlackSquare(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int innerFrameSize, int iInitial, int jInitial);
+
 //Declaring the array to store the image (unsigned char = unsigned 8 bit)
 
 unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
@@ -21,13 +24,6 @@ unsigned char copy_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
 unsigned char black_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
 
 int counter = 0;
-
-
-
-
-
-
-
 
 
 
