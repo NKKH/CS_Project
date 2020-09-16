@@ -4,7 +4,7 @@
 
 //cd C:\Users\schle\penumbral_eclipse\CS_Project
 //To compile (win): gcc cbmp.c main.c -o main.exe -std=c99
-//To run (win): main.exe test1.bmp test1_grey.bmp
+//To run (win): main.exe example.bmp example_done.bmp
 
 //To run (win): main.exe 2MEDIUM.bmp 2MEDIUM_grey.bmp
 
@@ -77,6 +77,11 @@ void toBinary(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH])
 
 void eroder(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char copy_image[BMP_WIDTH][BMP_HEIGTH], int timer)
 {
+  //Prints tests for erosion
+      char path[30];
+      sprintf(path, "test_image\\image%d.bmp", timer);
+      printPicture(erosion_image,path);
+
     for (int x = 0; x < BMP_WIDTH; x++)
     {
 
@@ -131,8 +136,6 @@ void eroder(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char co
     capture(erosion_image);
     
     if (timer > 0) {
-      char s[] = {'0' + timer, '.', 'b', 'm','p'}; 
-      printPicture(erosion_image,s);
       eroder(erosion_image, copy_image, timer);
 
     }
