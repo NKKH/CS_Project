@@ -18,6 +18,7 @@ void checkInnerFrame(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], int iIn
 int checkOuterFrame(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], int iInitial, int jInitial);
 void paintBlackSquare(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], int iInitial, int jInitial);
 void finalImage(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS],int x, int y);
+void printPicture(unsigned char test_image[BMP_WIDTH][BMP_HEIGTH], char* s);
 
 //Declaring the array to store the image (unsigned char = unsigned 8 bit)
 
@@ -130,7 +131,8 @@ void eroder(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char co
     capture(erosion_image);
     
     if (timer > 0) {
-
+      char s[] = {'0' + timer, '.', 'b', 'm','p'}; 
+      printPicture(erosion_image,s);
       eroder(erosion_image, copy_image, timer);
 
     }
@@ -285,6 +287,11 @@ void binaryToBMP(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH]){
   }
 }
 
+void printPicture(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], char* s){
+  binaryToBMP(erosion_image);
+  write_bitmap(test_image, s);
+}
+
 //Main function
 int main(int argc, char **argv)
 {
@@ -312,12 +319,14 @@ int main(int argc, char **argv)
 
 
   fillCopy(erosion_image, copy_image);
-  eroder(erosion_image, copy_image, 40);
+  eroder(erosion_image, copy_image, 10);
 
 
   
   //binaryToBMP(erosion_image);
   //Save image to file
+
+  
   write_bitmap(input_image, argv[2]);
 
   printf("Done!\n");
