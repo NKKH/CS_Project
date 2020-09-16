@@ -34,7 +34,7 @@ int nbJumps = ((2 * ((BMP_WIDTH - 2)/innerFrameSize)) - 1);
 int jumpSize = (innerFrameSize/2);
 int outerFrameSize = (innerFrameSize + 2);
 
-int jumps = BMP_HEIGTH/innerFrameSize;
+int counter=0;
 
 
 
@@ -77,10 +77,13 @@ void toBinary(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH])
 
 void eroder(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char copy_image[BMP_WIDTH][BMP_HEIGTH], int timer)
 {
-  //Prints tests for erosion
+  //Test pictures for erosion
       char path[30];
       sprintf(path, "test_image\\image%d.bmp", timer);
       printPicture(erosion_image,path);
+
+
+      int erode = 0;
 
     for (int x = 0; x < BMP_WIDTH; x++)
     {
@@ -88,10 +91,10 @@ void eroder(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char co
       for (int y = 0; y < BMP_HEIGTH; y++)
       {
 
-        if (copy_image[x][y] == 255)
+        if (erosion_image[x][y] == 255)
         {
 
-          int erode = 0;
+          erode=0;
 
           if (x - 1 < 0 || copy_image[x - 1][y] == 0)
           {
@@ -119,33 +122,31 @@ void eroder(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char co
 
           if (erode == 1)
           {
-
             erosion_image[x][y] = 0;
+            erode = 0;
           }
-
-          
-          erode = 0;
 
         }
       }
     }
 
-    fillCopy(erosion_image, copy_image);
-    timer--;
+    
 
     capture(erosion_image);
+
+    fillCopy(erosion_image, copy_image);
+    timer--;
     
     if (timer > 0) {
       eroder(erosion_image, copy_image, timer);
-
     }
   
 }
 
 void capture(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH]) {
 
-    for (int i = 0; i < BMP_WIDTH-12; i++) {
-      for (int j = 0; j < BMP_HEIGTH-12; j++) {
+    for (int i = 0; i <= BMP_WIDTH-12; i++) {
+      for (int j = 0; j <= BMP_HEIGTH-12; j++) {
 
         if (checkOuterFrame(erosion_image, i, j)  == 1) {
             checkInnerFrame(erosion_image, i + 1, j + 1);
@@ -158,12 +159,12 @@ void capture(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH]) {
 // i and j initial are top left corner of the outer rectangle to check
 int checkOuterFrame(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], int iInitial, int jInitial) {
 
-  for (int i = iInitial; i < iInitial + innerFrameSize + 2; i++) {
+  for (int i = iInitial; i < iInitial + innerFrameSize + 2; i++) { 
     if (erosion_image[i][jInitial] == 255) {
       return 0;
     }
 
-    if (erosion_image[i][jInitial + innerFrameSize + 1]== 255) {
+    if (erosion_image[i][jInitial + innerFrameSize+1]== 255) {
       return 0;
     }
   }
@@ -187,44 +188,18 @@ void checkInnerFrame(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], int iIn
         if (erosion_image[i][j] == 255) {
           erosion_image[i][j] = 0;
           whiteExist=1;
-          /* counter ++;
-          paintBlackSquare(erosion_image, iInitial, jInitial); */
         }
       }
     }
+
     if(whiteExist){
-      /* capturedCoord[iInitial+(innerFrameSize/2)][jInitial+(innerFrameSize/2)]=1; */
+      counter ++;
+      /* capturedCoord[iInitial+(innerFrameSize/2)][jInitial+(innerFrameSize/2)]=1; */ //I'd prefer the array, since you "lose" data by just painting the crosses..
       finalImage(input_image,iInitial+(innerFrameSize/2),jInitial+(innerFrameSize/2));
     }
 }
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!! change la photo a colorier !!!!!!!!!!!!!!!!
-/* void paintBlackSquare(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], int iInitial, int jInitial) {
-    
-    for (int i = iInitial; i < iInitial + innerFrameSize; i++) {
-      for (int j = jInitial; j < jInitial + innerFrameSize; j++) {
 
-        erosion_image[i][j]= 0;
-        
-        
-
-      }
-    }
-
-    for (int i = iInitial; i < iInitial + innerFrameSize; i++) {
-      black_image[i][jInitial + (innerFrameSize/2)][0] = 255;
-      black_image[i][jInitial + (innerFrameSize/2)][1] = 0;
-      black_image[i][jInitial + (innerFrameSize/2)][2] = 0;
-    }
-
-    for (int j = jInitial; j < jInitial + innerFrameSize; j++) {
-      black_image[iInitial + (innerFrameSize/2)][j][0] = 255;
-      black_image[iInitial + (innerFrameSize/2)][j][1] = 0;
-      black_image[iInitial + (innerFrameSize/2)][j][2] = 0;
-    }
-
-}
- */
 void fillCopy(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char copy_image[BMP_WIDTH][BMP_HEIGTH]){
 
       for (int x = 0; x < BMP_WIDTH; x++) {
@@ -235,31 +210,6 @@ void fillCopy(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char 
 }
 
 
-/* void fillBlack(unsigned char black_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]) {
-
-  for (int i = 0; i < BMP_WIDTH; i++) {
-    for (int j = 0; j < BMP_HEIGTH; j++) {
-
-      black_image[i][j][0] = 0;
-      black_image[i][j][1] = 0;
-      black_image[i][j][2] = 0;
-
-    }
-  }
-} */
-
-/* void invert(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]){
-  for (int x = 0; x < BMP_WIDTH; x++)
-  {
-    for (int y = 0; y < BMP_HEIGTH; y++)
-    {
-      for (int c = 0; c < BMP_CHANNELS; c++)
-      {
-      erosion_image[x][y][c] = 255 - input_image[x][y][c];
-      }
-    }
-  }
-} */
 
 void finalImage(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS],int x, int y){
   for(int k = 0 ; k < innerFrameSize ; k++) {
@@ -328,10 +278,8 @@ int main(int argc, char **argv)
   
   //binaryToBMP(erosion_image);
   //Save image to file
-
-  
   write_bitmap(input_image, argv[2]);
 
-  printf("Done!\n");
+  printf("Done! Count: %d\n",counter);
   return 0;
 }

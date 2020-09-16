@@ -7,20 +7,21 @@
 #include <stdio.h>
 
 
-void function(unsigned char integer[1],int int2){
-    integer[0] = 1;
-    int2 = 1;
+void function(int a, int b){
+    
+    for(int i = a; i< a+b; i++){
+        printf("%d",i);
+    }
+
 }
 
-unsigned char integer[1]={5};
-int int2 = 5;
+
 
 
 
 int main(){
-function(integer,int2);
-printf("%d",integer[0]);
-printf("%d",int2);
+function(1,3);
+
 
 return 0;
 }
