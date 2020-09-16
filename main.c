@@ -182,7 +182,7 @@ void checkInnerFrame(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], int iIn
       for (int j = jInitial; j < jInitial + innerFrameSize; j++) {
 
         if (erosion_image[i][j] == 255) {
-          erosion_image[iInitial][jInitial]=0;
+          erosion_image[i][j] = 0;
           whiteExist=1;
           /* counter ++;
           paintBlackSquare(erosion_image, iInitial, jInitial); */
@@ -316,7 +316,7 @@ int main(int argc, char **argv)
 
 
   fillCopy(erosion_image, copy_image);
-  eroder(erosion_image, copy_image, 8);
+  eroder(erosion_image, copy_image, 40);
 
 
   
