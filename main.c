@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include "cbmp.h"
 
+//TODO: Put these in a different file, and then include
 void fillCopy(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char copy_image[BMP_WIDTH][BMP_HEIGTH]);
 void capture(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH]);
 void checkInnerFrame(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], int iInitial, int jInitial);
@@ -19,21 +20,24 @@ void finalImage(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], 
 void printPicture(unsigned char test_image[BMP_WIDTH][BMP_HEIGTH], char *s);
 
 //Declaring the array to store the image (unsigned char = unsigned 8 bit)
-
+//TODO: Convert to bit representation for the erosion image.
 unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
 unsigned char test_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
 unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH];
 unsigned char copy_image[BMP_WIDTH][BMP_HEIGTH];
 unsigned char capturedCoord[BMP_WIDTH][BMP_HEIGTH];
 
+//TODO: Try different capture frames.
 #define innerFrameSize 12
+
+//TODO: Could experiment with larger intervals for capture.
 /* int nbJumps = ((2 * ((BMP_WIDTH - 2)/innerFrameSize)) - 1);
 int jumpSize = (innerFrameSize/2); 
 int outerFrameSize = (innerFrameSize + 2); */
 
 int counter = 0;
 
-//One could do Greyscaling and binary-transformation at the same time
+//TODO: One could do Greyscaling and binary-transformation at the same time
 void toGreyScale(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH])
 {
   for (int x = 0; x < BMP_WIDTH; x++)
@@ -65,6 +69,8 @@ void toBinary(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH])
   }
 }
 
+
+//TODO: Could test different erosion patterns.
 void eroder(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char copy_image[BMP_WIDTH][BMP_HEIGTH], int timer)
 {
   //Test pictures for erosion
