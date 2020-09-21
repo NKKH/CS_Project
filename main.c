@@ -5,6 +5,8 @@
 //cd C:\Users\schle\penumbral_eclipse\CS_Project
 //To compile (win): gcc cbmp.c main.c -o main.exe -std=c99
 //To run (win): main.exe example.bmp example_done.bmp
+//To run (win): main.exe 1MEDIUM.bmp 1MEDIUM_done.bmp
+//To run (win): main.exe 1HARD.bmp 1HARD_done.bmp
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -69,7 +71,7 @@ void toBinary(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH])
   }
 }
 
-
+// REGULAR EROSION
 //TODO: Could test different erosion patterns.
 void eroder(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char copy_image[BMP_WIDTH][BMP_HEIGTH], int timer)
 {
@@ -154,6 +156,96 @@ void capture(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH])
     }
   }
 }
+
+
+void eroderDiag(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char copy_image[BMP_WIDTH][BMP_HEIGTH], int timer)
+{
+  //Test pictures for erosion
+  char path[30];
+  sprintf(path, "test_image\\image%d.bmp", timer);
+  printPicture(erosion_image, path);
+
+  unsigned char erode = 0;
+
+  for (int x = 0; x < BMP_WIDTH; x++)
+  {
+    for (int y = 0; y < BMP_HEIGTH; y++)
+    {
+      if (erosion_image[x][y] == 255)
+      {
+
+        erode = 0;
+        // Checks edge cases
+        /* if(x==0 || x == (BMP_WIDTH-1) || y==0 || y == (BMP_HEIGTH-1)
+        || copy_image[x - 1][y] == 0||copy_image[x + 1][y] == 0||copy_image[x][y - 1] == 0||copy_image[x][y + 1] == 0)
+        {
+          erode=1;
+        } */
+
+        if (x == 0 || copy_image[x - 1][y] == 0)
+        {
+
+          erode = 1;
+        }
+
+        else if (x + 1 == BMP_WIDTH || copy_image[x + 1][y] == 0)
+        {
+
+          erode = 1;
+        }
+
+        else if (y == 0 || copy_image[x][y - 1] == 0)
+        {
+
+          erode = 1;
+        }
+
+        else if (y + 1 == BMP_HEIGTH || copy_image[x][y + 1] == 0)
+        {
+
+          erode = 1;
+        }
+
+        else if ((x + 1 == BMP_WIDTH || y + 1 == BMP_HEIGTH) || copy_image[x+1][y+1] == 0)
+        {
+
+          erode = 1;
+        }
+
+        else if ((x + 1 == BMP_WIDTH || y - 1 == 0) || copy_image[x + 1][y - 1] == 0) {
+          erode = 1;
+        }
+
+        else if ((x - 1 == 0 || y + 1 == BMP_HEIGTH) || copy_image[x-1][y+1] == 0) {
+          erode = 1;
+        }
+
+        else if ((x - 1 == 0 || y - 1 == 0) || copy_image[x-1][y-1] == 0) {
+          erode = 1;
+        }
+
+        if (erode == 1)
+        {
+          erosion_image[x][y] = 0;
+          erode = 0;
+        }
+      }
+    }
+  }
+
+  capture(erosion_image);
+
+  fillCopy(erosion_image, copy_image);
+  timer--;
+
+  if (timer > 0)
+  {
+    eroderDiag(erosion_image, copy_image, timer);
+  }
+}
+
+
+
 
 // i and j initial are top left corner of the outer rectangle to check
 int checkOuterFrame(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], int iInitial, int jInitial)
