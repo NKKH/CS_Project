@@ -5,6 +5,7 @@
 //cd C:\Users\schle\penumbral_eclipse\CS_Project
 //To compile (win): gcc cbmp.c main.c -o main.exe -std=c99
 //To run (win): main.exe example.bmp example_done.bmp
+//main.exe samples\medium\1MEDIUM.bmp 1MEDIUM_done.bmp
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -29,6 +30,7 @@ unsigned char capturedCoord[BMP_WIDTH][BMP_HEIGTH];
 
 //TODO: Try different capture frames.
 #define innerFrameSize 12
+#define iterations 15
 
 //TODO: Could experiment with larger intervals for capture.
 /* int nbJumps = ((2 * ((BMP_WIDTH - 2)/innerFrameSize)) - 1);
@@ -71,6 +73,7 @@ void toBinary(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH])
 
 
 //TODO: Could test different erosion patterns.
+//TODO: Erode until no more white pixels.
 void eroder(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char copy_image[BMP_WIDTH][BMP_HEIGTH], int timer)
 {
   //Test pictures for erosion
@@ -292,7 +295,7 @@ int main(int argc, char **argv)
   toBinary(erosion_image);
 
   fillCopy(erosion_image, copy_image);
-  eroder(erosion_image, copy_image, 10);
+  eroder(erosion_image, copy_image, iterations);
 
   //binaryToBMP(erosion_image);
   //Save image to file
