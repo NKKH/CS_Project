@@ -6,13 +6,35 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+//10*8 = 80
+char a[80];
+#define BMP_WIDTH 14
+#define numByte 8
 
-void function(int a, int b){
-    
-    for(int i = a; i< a+b; i++){
-        printf("%d",i);
+
+
+void set(char a[], int i, int j){
+
+int area = ((i+1)*(j+1)+(i)*(BMP_WIDTH-(j+1)));
+
+int index = area / numByte;
+int numBit = area % numByte;
+
+a[index] = a[index]^(1<<numBit);
+}
+
+
+int getBit(char a[], int i, int j){
+    int area = ((i+1)*(j+1)+(i)*(BMP_WIDTH-(j+1)));
+
+    int index = area / numByte;
+    int numBit = area % numByte;
+
+    if (a[index]&(1<<numBit)){
+        return 1;
+    }else{
+        return 0;
     }
-
 }
 
 
@@ -20,7 +42,13 @@ void function(int a, int b){
 
 
 int main(){
-function(1,3);
+
+set(a,10,5);
+
+/* char b = (1<<0);
+printf("%d",b); */
+
+printf("%d",getBit(a,10,6));
 
 
 return 0;

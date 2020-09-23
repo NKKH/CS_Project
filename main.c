@@ -4,8 +4,8 @@
 //cd C:\Users\Admin\Desktop\Computer systems\Project\CS_Project
 //cd C:\Users\schle\penumbral_eclipse\CS_Project
 //To compile (win): gcc cbmp.c main.c -o main.exe -std=c99
-//To run (win): main.exe example.bmp example_done.bmp
 
+//To run (win): main.exe example.bmp example_done.bmp
 //To run (win): main.exe 1MEDIUM.bmp 1MEDIUM_done.bmp
 //To run (win): main.exe 1HARD.bmp 1HARD_done.bmp
 
@@ -16,12 +16,17 @@
 #include <stdio.h>
 #include "cbmp.h"
 
+//TODO: Try different capture frames.
+#define innerFrameSize 12
+#define iterations 15
+#define bytelength 8
+#define numByte (BMP_WIDTH*BMP_HEIGTH)/(numByte)+(BMP_WIDTH*BMP_HEIGTH)%(numByte)
+
 //TODO: Put these in a different file, and then include
 void fillCopy(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char copy_image[BMP_WIDTH][BMP_HEIGTH]);
 void capture(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH]);
 void checkInnerFrame(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], int iInitial, int jInitial);
 int checkOuterFrame(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], int iInitial, int jInitial);
-void paintBlackSquare(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], int iInitial, int jInitial);
 void finalImage(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int x, int y);
 void printPicture(unsigned char test_image[BMP_WIDTH][BMP_HEIGTH], char *s);
 
@@ -29,13 +34,11 @@ void printPicture(unsigned char test_image[BMP_WIDTH][BMP_HEIGTH], char *s);
 //TODO: Convert to bit representation for the erosion image.
 unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
 unsigned char test_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
-unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH];
+char erosion_image[numByte]
 unsigned char copy_image[BMP_WIDTH][BMP_HEIGTH];
 unsigned char capturedCoord[BMP_WIDTH][BMP_HEIGTH];
 
-//TODO: Try different capture frames.
-#define innerFrameSize 12
-#define iterations 15
+
 
 //TODO: Could experiment with larger intervals for capture.
 /* int nbJumps = ((2 * ((BMP_WIDTH - 2)/innerFrameSize)) - 1);
@@ -44,14 +47,42 @@ int outerFrameSize = (innerFrameSize + 2); */
 
 int counter = 0;
 
+//BIT MANIPULATION
+void set(char a[], int i, int j){
+
+int area = ((i+1)*(j+1)+(i)*(BMP_WIDTH-(j+1)));
+
+int index = area / numByte;
+int numBit = area % numByte;
+
+a[index] = a[index]^(1<<numBit);
+}
+
+
+int getBit(char a[], int i, int j){
+    int area = ((i+1)*(j+1)+(i)*(BMP_WIDTH-(j+1)));
+
+    int index = area / numByte;
+    int numBit = area % numByte;
+
+    if (a[index]&(1<<numBit)){
+        return 1;
+    }else{
+        return 0;
+    }
+}
+
+
 //TODO: One could do Greyscaling and binary-transformation at the same time
-void toGreyScale(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH])
+void toGreyScale(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], char erosion_image[])
 {
   for (int x = 0; x < BMP_WIDTH; x++)
   {
     for (int y = 0; y < BMP_HEIGTH; y++)
     {
-      erosion_image[x][y] = (input_image[x][y][0] + input_image[x][y][1] + input_image[x][y][2]) / 3;
+
+
+     
     }
   }
 }
@@ -310,6 +341,8 @@ void checkInnerFrame(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], int iIn
   }
 }
 
+
+//TODO: Instead of copying the array, keep track of changes, and only modify those changes.
 void fillCopy(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char copy_image[BMP_WIDTH][BMP_HEIGTH])
 {
 
