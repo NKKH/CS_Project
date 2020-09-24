@@ -45,11 +45,10 @@ int main(){
 
 set(a,10,5);
 
-/* char b = (1<<0);
-printf("%d",b); */
-
-printf("%d",getBit(a,10,6));
-
+if(getBit(a,10,5)==1)
+{
+    printf("%d",getBit(a,10,5));
+}
 
 return 0;
 }
