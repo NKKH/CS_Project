@@ -1,2 +1,2 @@
-*.bmp
-*test_image/*
+*.bmp*
+/test_image/*
