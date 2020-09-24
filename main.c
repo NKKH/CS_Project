@@ -20,23 +20,23 @@
 #define innerFrameSize 12
 #define iterations 15
 #define bytelength 8
-#define numByte (BMP_WIDTH*BMP_HEIGTH)/(numByte)+(BMP_WIDTH*BMP_HEIGTH)%(numByte)
+#define numByte (BMP_WIDTH*BMP_HEIGTH)/(bytelength)+(BMP_WIDTH*BMP_HEIGTH)%(bytelength)
 
 //TODO: Put these in a different file, and then include
-void fillCopy(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char copy_image[BMP_WIDTH][BMP_HEIGTH]);
-void capture(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH]);
-void checkInnerFrame(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], int iInitial, int jInitial);
-int checkOuterFrame(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], int iInitial, int jInitial);
+void fillCopy(char erosion_image[numByte], char copy_image[numByte]);
+void capture(char erosion_image[numByte]);
+void checkInnerFrame(char erosion_image[numByte], int iInitial, int jInitial);
+int checkOuterFrame(char erosion_image[numByte], int iInitial, int jInitial);
 void finalImage(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int x, int y);
-void printPicture(unsigned char test_image[BMP_WIDTH][BMP_HEIGTH], char *s);
+void printPicture(char erosion_image[numByte], char *s);
 
 //Declaring the array to store the image (unsigned char = unsigned 8 bit)
 //TODO: Convert to bit representation for the erosion image.
 unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
 unsigned char test_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
-char erosion_image[numByte]
-unsigned char copy_image[BMP_WIDTH][BMP_HEIGTH];
-unsigned char capturedCoord[BMP_WIDTH][BMP_HEIGTH];
+char erosion_image[numByte] = {0};
+char copy_image[numByte] = {0};
+char capturedCoord[numByte]={0};
 
 
 
@@ -48,7 +48,7 @@ int outerFrameSize = (innerFrameSize + 2); */
 int counter = 0;
 
 //BIT MANIPULATION
-void set(char a[], int i, int j){
+void setBit(char a[numByte], int i, int j){
 
 int area = ((i+1)*(j+1)+(i)*(BMP_WIDTH-(j+1)));
 
@@ -59,7 +59,7 @@ a[index] = a[index]^(1<<numBit);
 }
 
 
-int getBit(char a[], int i, int j){
+int getBit(char a[numByte], int i, int j){
     int area = ((i+1)*(j+1)+(i)*(BMP_WIDTH-(j+1)));
 
     int index = area / numByte;
@@ -74,35 +74,19 @@ int getBit(char a[], int i, int j){
 
 
 //TODO: One could do Greyscaling and binary-transformation at the same time
-void toGreyScale(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], char erosion_image[])
-{
-  for (int x = 0; x < BMP_WIDTH; x++)
-  {
-    for (int y = 0; y < BMP_HEIGTH; y++)
-    {
-
-
-     
-    }
-  }
-}
-
-void toBinary(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH])
+void toBinary(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], char erosion_image[numByte])
 {
   unsigned char color;
   for (int x = 0; x < BMP_WIDTH; x++)
   {
     for (int y = 0; y < BMP_HEIGTH; y++)
     {
-      if (erosion_image[x][y] <= 90)
-      {
-        color = 0; // black
+      color = (input_image[x][y][0]+input_image[x][y][1]+input_image[x][y][2])/3;
+
+      //set bit to 1 if white.
+      if(color > 90){
+        setBit(erosion_image,x,y);
       }
-      else
-      {
-        color = 255; // white
-      }
-      erosion_image[x][y] = color;
     }
   }
 }
@@ -110,7 +94,7 @@ void toBinary(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH])
 // REGULAR EROSION
 //TODO: Could test different erosion patterns.
 //TODO: Erode until no more white pixels.
-void eroder(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char copy_image[BMP_WIDTH][BMP_HEIGTH], int timer)
+void eroder(char erosion_image[numByte], char copy_image[numByte], int timer)
 {
   //Test pictures for erosion
   char path[30];
@@ -123,36 +107,30 @@ void eroder(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char co
   {
     for (int y = 0; y < BMP_HEIGTH; y++)
     {
-      if (erosion_image[x][y] == 255)
+      if (getBit(erosion_image,x,y) == 1)
       {
 
         erode = 0;
-        // Checks edge cases
-        /* if(x==0 || x == (BMP_WIDTH-1) || y==0 || y == (BMP_HEIGTH-1)
-        || copy_image[x - 1][y] == 0||copy_image[x + 1][y] == 0||copy_image[x][y - 1] == 0||copy_image[x][y + 1] == 0)
-        {
-          erode=1;
-        } */
 
-        if (x == 0 || copy_image[x - 1][y] == 0)
+        if (x == 0 || getBit(copy_image,x-1,y) == 0) 
         {
 
           erode = 1;
         }
 
-        else if (x + 1 == BMP_WIDTH || copy_image[x + 1][y] == 0)
+        else if (x + 1 == BMP_WIDTH || getBit(copy_image,x+1,y) == 0)
         {
 
           erode = 1;
         }
 
-        else if (y == 0 || copy_image[x][y - 1] == 0)
+        else if (y == 0 || getBit(copy_image,x,y-1) == 0)
         {
 
           erode = 1;
         }
 
-        else if (y + 1 == BMP_HEIGTH || copy_image[x][y + 1] == 0)
+        else if (y + 1 == BMP_HEIGTH || getBit(copy_image,x,y+1) == 0)
         {
 
           erode = 1;
@@ -160,7 +138,7 @@ void eroder(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char co
 
         if (erode == 1)
         {
-          erosion_image[x][y] = 0;
+          setBit(erosion_image,x,y);
           erode = 0;
         }
       }
@@ -178,7 +156,7 @@ void eroder(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char co
   }
 }
 
-void capture(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH])
+void capture(char erosion_image[numByte])
 {
 
   for (int i = 0; i <= BMP_WIDTH - (innerFrameSize+2); i++)
@@ -194,7 +172,7 @@ void capture(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH])
   }
 }
 
-
+/* 
 void eroderDiag(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char copy_image[BMP_WIDTH][BMP_HEIGTH], int timer)
 {
   //Test pictures for erosion
@@ -212,12 +190,6 @@ void eroderDiag(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned cha
       {
 
         erode = 0;
-        // Checks edge cases
-        /* if(x==0 || x == (BMP_WIDTH-1) || y==0 || y == (BMP_HEIGTH-1)
-        || copy_image[x - 1][y] == 0||copy_image[x + 1][y] == 0||copy_image[x][y - 1] == 0||copy_image[x][y + 1] == 0)
-        {
-          erode=1;
-        } */
 
         if (x == 0 || copy_image[x - 1][y] == 0)
         {
@@ -279,24 +251,24 @@ void eroderDiag(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned cha
   {
     eroderDiag(erosion_image, copy_image, timer);
   }
-}
+} */
 
 
 
 
 // i and j initial are top left corner of the outer rectangle to check
-int checkOuterFrame(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], int iInitial, int jInitial)
+int checkOuterFrame(char erosion_image[numByte], int iInitial, int jInitial)
 {
   //Check outer columns
   for (int i = iInitial; i < iInitial + innerFrameSize + 2; i++)
   {
     //first column
-    if (erosion_image[i][jInitial] == 255)
+    if (getBit(erosion_image,i,jInitial) == 1)
     {
       return 0;
     }
     //second column
-    else if (erosion_image[i][jInitial + innerFrameSize + 1] == 255)
+    else if (getBit(erosion_image,i,jInitial + innerFrameSize + 1) == 1)
     {
       return 0;
     }
@@ -304,12 +276,12 @@ int checkOuterFrame(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], int iIni
   //Check outer rows
   for (int j = jInitial; j < jInitial + innerFrameSize + 2; j++)
   {
-    if (erosion_image[iInitial][j] == 255)
+    if (getBit(erosion_image,iInitial,j) == 1)
     {
       return 0;
     }
 
-    else if (erosion_image[iInitial + innerFrameSize + 1][j] == 255)
+    else if (getBit(erosion_image,iInitial + innerFrameSize + 1,j) == 1)
     {
       return 0;
     }
@@ -317,16 +289,16 @@ int checkOuterFrame(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], int iIni
   return 1; //everything is black
 }
 
-void checkInnerFrame(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], int iInitial, int jInitial)
+void checkInnerFrame(char erosion_image[numByte], int iInitial, int jInitial)
 {
   unsigned char whiteExist = 0;
   for (int i = iInitial; i < iInitial + innerFrameSize; i++)
   {
     for (int j = jInitial; j < jInitial + innerFrameSize; j++)
     {
-      if (erosion_image[i][j] == 255)
+      if (getBit(erosion_image,i,j)==1)
       {
-        erosion_image[i][j] = 0;
+        setBit(erosion_image,i,j);
         whiteExist = 1;
       }
     }
@@ -343,16 +315,19 @@ void checkInnerFrame(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], int iIn
 
 
 //TODO: Instead of copying the array, keep track of changes, and only modify those changes.
-void fillCopy(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char copy_image[BMP_WIDTH][BMP_HEIGTH])
+void fillCopy(char erosion_image[numByte], char copy_image[numByte])
 {
 
-  for (int x = 0; x < BMP_WIDTH; x++)
+  for(int i = 0; i < numByte; i++){
+    copy_image[i] = erosion_image[i];
+  }
+  /* for (int x = 0; x < BMP_WIDTH; x++)
   {
     for (int y = 0; y < BMP_HEIGTH; y++)
     {
       copy_image[x][y] = erosion_image[x][y];
     }
-  }
+  } */
 }
 
 void finalImage(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int x, int y)
@@ -369,13 +344,14 @@ void finalImage(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], 
   }
 }
 
-void binaryToBMP(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH])
+//Function for testing erosion. Can be deleted once project is finished.
+void binaryToBMP(char erosion_image[numByte])
 {
   for (int i = 0; i < BMP_WIDTH; i++)
   {
     for (int j = 0; j < BMP_HEIGTH; j++)
     {
-      if (erosion_image[i][j] == 0)
+      if (getBit(erosion_image,i,j) == 0)
       {
         test_image[i][j][0] = 0;
         test_image[i][j][1] = 0;
@@ -391,7 +367,7 @@ void binaryToBMP(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH])
   }
 }
 
-void printPicture(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], char *s)
+void printPicture(char erosion_image[numByte], char *s)
 {
   binaryToBMP(erosion_image);
   write_bitmap(test_image, s);
@@ -417,10 +393,7 @@ int main(int argc, char **argv)
   //Load image from file
   read_bitmap(argv[1], input_image);
 
-  //Run inversion
-  toGreyScale(input_image, erosion_image);
-
-  toBinary(erosion_image);
+  toBinary(input_image, erosion_image);
 
   fillCopy(erosion_image, copy_image);
   eroder(erosion_image, copy_image, iterations);
