@@ -21,7 +21,7 @@
 #define byteLength 8
 #define numByte (BMP_WIDTH * BMP_HEIGTH) / (byteLength) + (BMP_WIDTH * BMP_HEIGTH) % (byteLength)
 
-//TODO: Put these in a different file, and then include
+//TODO: Put these in a different file, and then include (PROTOTYPING)
 void fillCopy(char erosion_image[numByte], char copy_image[numByte]);
 void capture(char erosion_image[numByte]);
 void checkInnerFrame(char erosion_image[numByte], int iInitial, int jInitial);
@@ -32,9 +32,9 @@ void printPicture(char erosion_image[numByte]);
 //Declaring the array to store the image (unsigned char = unsigned 8 bit)
 //TODO: Convert to bit representation for the erosion image.
 unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
-unsigned char test_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
-char erosion_image[numByte] = {0};
-char copy_image[numByte] = {0};
+unsigned char test_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]; //Used only for testing..
+char erosion_image[numByte] = {0};  //used to erode image
+char copy_image[numByte] = {0}; //used as reference for erosion
 char capturedCoord[numByte] = {0};
 
 //For testing:
@@ -48,16 +48,15 @@ int outerFrameSize = (innerFrameSize + 2); */
 int counter = 0;
 
 //BIT MANIPULATION
-//TODO: UNSURE HOW TO FIND THE BIT INDEX (NUMBIT)
 void setBit(char a[numByte], int i, int j)
 {
   //On the first byte, we will ignore the first 1, since index = 8/8 will result in accessing the second byte. Henceforth, we utilize every bit in our byte array.
   int area = ((i + 1) * (j + 1) + (i) * (BMP_WIDTH - (j + 1)));
 
-  int index = area / byteLength;
-  int numBit = area % byteLength;
+  int index = area >> 3;
+  int numBit = area & (byteLength-1);
 
-  //Go to index byte, and flip the numBit bit.
+  //Go to "index" byte, and flip the "numBit" bit, then conduct a XOR operations to flip.
   a[index] = a[index] ^ (1 << numBit);
 }
 
@@ -65,9 +64,10 @@ int getBit(char a[numByte], int i, int j)
 {
   int area = ((i + 1) * (j + 1) + (i) * (BMP_WIDTH - (j + 1)));
 
-  int index = area / byteLength;
-  int numBit = area % byteLength;
+  int index = area >> 3;
+  int numBit = area & (byteLength-1);
 
+//comparison
   if (a[index] & (1 << numBit))
   {
     return 1;
@@ -78,7 +78,7 @@ int getBit(char a[numByte], int i, int j)
   }
 }
 
-//TODO: One could do Greyscaling and binary-transformation at the same time
+//Greyscaling AND conversion to binary representation
 void toBinary(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], char erosion_image[numByte])
 {
   unsigned char color;
@@ -111,6 +111,7 @@ void eroder(char erosion_image[numByte], char copy_image[numByte])
     {
       if (getBit(erosion_image, x, y) == 1)
       {
+        whiteFound=1;
 
         if (x == 0 || getBit(copy_image, x - 1, y) == 0)
         {
@@ -139,7 +140,6 @@ void eroder(char erosion_image[numByte], char copy_image[numByte])
         if (erode == 1)
         {
           setBit(erosion_image, x, y);
-          whiteFound = 1;
           erode = 0;
         }
       }
@@ -148,9 +148,9 @@ void eroder(char erosion_image[numByte], char copy_image[numByte])
 
   capture(erosion_image);
 
-  //Test pictures for erosion
+/*   //Test pictures for erosion
   printPicture(erosion_image);
-
+ */
   fillCopy(erosion_image, copy_image);
 
   if (whiteFound)
@@ -175,70 +175,69 @@ void capture(char erosion_image[numByte])
   }
 }
 
-/* 
-void eroderDiag(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char copy_image[BMP_WIDTH][BMP_HEIGTH])
+void eroderDiag(char erosion_image[numByte], char copy_image[numByte])
 {
-  //Test pictures for erosion
-  char path[30];
-  sprintf(path, "test_image\\image%d.bmp");
-  printPicture(erosion_image, path);
-
   unsigned char erode = 0;
+  unsigned char whiteFound = 0;
 
   for (int x = 0; x < BMP_WIDTH; x++)
   {
     for (int y = 0; y < BMP_HEIGTH; y++)
     {
-      if (erosion_image[x][y] == 255)
+      if (getBit(erosion_image, x, y) == 1)
       {
+        whiteFound=1;
 
-        erode = 0;
+        if (x == 0 || getBit(copy_image, x - 1, y) == 0)
+        {
+          erode = 1;
+        }
 
-        if (x == 0 || copy_image[x - 1][y] == 0)
+        else if (x + 1 == BMP_WIDTH || getBit(copy_image, x + 1, y) == 0)
+        {
+          
+          erode = 1;
+        }
+
+        else if (y == 0 || getBit(copy_image, x, y - 1) == 0)
+        {
+          
+          erode = 1;
+        }
+
+        else if (y + 1 == BMP_HEIGTH || getBit(copy_image, x, y + 1) == 0)
+        {
+        
+          erode = 1;
+        }
+
+        else if ((x + 1 == BMP_WIDTH || y + 1 == BMP_HEIGTH) || getBit(copy_image, x + 1, y + 1) == 0)
+        {
+        
+          erode = 1;
+        }
+
+        else if ((x + 1 == BMP_WIDTH || y - 1 == 0) || getBit(copy_image, x + 1, y - 1) == 0)
+        {
+         
+          erode = 1;
+        }
+
+        else if ((x - 1 == 0 || y + 1 == BMP_HEIGTH) || getBit(copy_image, x - 1, y + 1) == 0)
+        {
+          
+          erode = 1;
+        }
+
+       else if ((x - 1 == 0 || y - 1 == 0) || getBit(copy_image, x - 1, y - 1) == 0)
         {
 
-          erode = 1;
-        }
-
-        else if (x + 1 == BMP_WIDTH || copy_image[x + 1][y] == 0)
-        {
-
-          erode = 1;
-        }
-
-        else if (y == 0 || copy_image[x][y - 1] == 0)
-        {
-
-          erode = 1;
-        }
-
-        else if (y + 1 == BMP_HEIGTH || copy_image[x][y + 1] == 0)
-        {
-
-          erode = 1;
-        }
-
-        else if ((x + 1 == BMP_WIDTH || y + 1 == BMP_HEIGTH) || copy_image[x+1][y+1] == 0)
-        {
-
-          erode = 1;
-        }
-
-        else if ((x + 1 == BMP_WIDTH || y - 1 == 0) || copy_image[x + 1][y - 1] == 0) {
-          erode = 1;
-        }
-
-        else if ((x - 1 == 0 || y + 1 == BMP_HEIGTH) || copy_image[x-1][y+1] == 0) {
-          erode = 1;
-        }
-
-        else if ((x - 1 == 0 || y - 1 == 0) || copy_image[x-1][y-1] == 0) {
           erode = 1;
         }
 
         if (erode == 1)
         {
-          erosion_image[x][y] = 0;
+          setBit(erosion_image, x, y);
           erode = 0;
         }
       }
@@ -249,11 +248,11 @@ void eroderDiag(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned cha
 
   fillCopy(erosion_image, copy_image);
 
-  if (timer > 0)
+  if (whiteFound)
   {
     eroderDiag(erosion_image, copy_image);
   }
-} */
+}
 
 // i and j initial are top left corner of the outer rectangle to check
 int checkOuterFrame(char erosion_image[numByte], int iInitial, int jInitial)
@@ -403,8 +402,11 @@ int main(int argc, char **argv)
 
   //binaryToBMP(erosion_image);
   //Save image to file
-  write_bitmap(input_image, argv[2]);
 
-  printf("Done! Count: %d\n", counter);
+  char finalPath[30];
+  sprintf(finalPath, "results\\%s",argv[2]);
+  write_bitmap(input_image, finalPath);
+
+  printf("Done! \n Count: %d\n", counter);
   return 0;
 }
