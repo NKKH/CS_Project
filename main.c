@@ -48,7 +48,7 @@ int outerFrameSize = (innerFrameSize + 2); */
 int counter = 0;
 
 //BIT MANIPULATION
-void setBit(char a[numByte], int i, int j)
+void flipBit(char a[numByte], int i, int j)
 {
   //On the first byte, we will ignore the first 1, since index = 8/8 will result in accessing the second byte. Henceforth, we utilize every bit in our byte array.
   int area = ((i + 1) * (j + 1) + (i) * (BMP_WIDTH - (j + 1)));
@@ -91,7 +91,7 @@ void toBinary(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], ch
       //set bit to 1 if white.
       if (color > 90)
       {
-        setBit(erosion_image, x, y);
+        flipBit(erosion_image, x, y);
       }
     }
   }
@@ -139,7 +139,7 @@ void eroder(char erosion_image[numByte], char copy_image[numByte])
 
         if (erode == 1)
         {
-          setBit(erosion_image, x, y);
+          flipBit(erosion_image, x, y);
           erode = 0;
         }
       }
@@ -237,7 +237,7 @@ void eroderDiag(char erosion_image[numByte], char copy_image[numByte])
 
         if (erode == 1)
         {
-          setBit(erosion_image, x, y);
+          flipBit(erosion_image, x, y);
           erode = 0;
         }
       }
@@ -296,7 +296,7 @@ void checkInnerFrame(char erosion_image[numByte], int iInitial, int jInitial)
     {
       if (getBit(erosion_image, i, j) == 1)
       {
-        setBit(erosion_image, i, j);
+        flipBit(erosion_image, i, j);
         whiteExist = 1;
       }
     }
