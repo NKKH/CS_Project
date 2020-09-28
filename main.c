@@ -513,7 +513,7 @@ int main(int argc, char **argv)
 
 
   for (int i = 0; i < 1; i++) {
-    firstSeparation(erosion_image, 29);
+    firstSeparation(erosion_image, 21);
     
   }
 
