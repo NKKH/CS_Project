@@ -109,7 +109,7 @@ void toBinary(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], ch
 
 
 void firstSeparation(char erosion_image[numByte], int treshold) {
-  char coords[2]; // iStart, jStart, iEnd, jEnd
+  char coords[2]; // iStart, jStart
   int found = 0;
 
   //HORIZONTAL CHECK
@@ -143,7 +143,6 @@ void firstSeparation(char erosion_image[numByte], int treshold) {
           coords[1] = j;
           found = 1;
 
-          flipBit(erosion_image, i, j);
         }
       } else {
           if (found == 1) {
@@ -231,7 +230,6 @@ void firstSeparation(char erosion_image[numByte], int treshold) {
           coords[0] = i;
           coords[1] = j + (BMP_HEIGTH - i);
           found = 1;
-          flipBit(erosion_image, i, j + (BMP_HEIGTH - i));
         }
       } else {
           if (found == 1) {
