@@ -94,7 +94,7 @@ void toBinary(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], ch
       color = (input_image[x][y][0] + input_image[x][y][1] + input_image[x][y][2]) / 3;
 
       //set bit to 1 if white.
-      if (color > 90)
+      if (color > 100)
       {
         flipBit(erosion_image, x, y);
       }
@@ -109,7 +109,7 @@ void toBinary(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], ch
 
 
 void firstSeparation(char erosion_image[numByte], int treshold) {
-  char coords[2]; // iStart, jStart
+  int coords[2]; // iStart, jStart
   int found = 0;
 
   //HORIZONTAL CHECK
@@ -123,7 +123,7 @@ void firstSeparation(char erosion_image[numByte], int treshold) {
           found = 1;
         }
       } else {
-        if (found == 1) {
+        if (found == 1 && getBit(erosion_image, i, j) == 0){
           particleDivider(erosion_image, coords[0], coords[1], i, j-1, treshold, 1);
           found = 0;
         }
@@ -145,7 +145,7 @@ void firstSeparation(char erosion_image[numByte], int treshold) {
 
         }
       } else {
-          if (found == 1) {
+          if (found == 1 && getBit(erosion_image, i, j) == 0) {
             particleDivider(erosion_image, coords[0], coords[1], i-1, j, treshold, 2);
             found = 0;
           }
@@ -169,7 +169,7 @@ void firstSeparation(char erosion_image[numByte], int treshold) {
           found = 1;
         }
       } else {
-        if (found == 1) {
+        if (found == 1 && getBit(erosion_image,i+j,j) == 0) {
           particleDivider(erosion_image, coords[0], coords[1], (i+j)-1, j-1, treshold, 3);
           found = 0;
         }
@@ -189,7 +189,7 @@ void firstSeparation(char erosion_image[numByte], int treshold) {
           found = 1;
         }
       } else {
-          if (found == 1) {
+          if (found == 1 && getBit(erosion_image,i,j+i) == 0) {
             particleDivider(erosion_image, coords[0], coords[1], i-1, (j+i)-1, treshold, 3);
             found = 0;
           }
@@ -201,7 +201,7 @@ void firstSeparation(char erosion_image[numByte], int treshold) {
 
   // DIAGONAL SW-NE
 
-  for (int i = BMP_HEIGTH - 1; i >= 0; i--){
+/*   for (int i = BMP_HEIGTH - 1; i >= 0; i--){
     for (int j = 0; j <= i; j++) {
       if (getBit(erosion_image, i-j, j) == 1) {
         if (found == 0) {
@@ -211,7 +211,7 @@ void firstSeparation(char erosion_image[numByte], int treshold) {
 
         }
       } else {
-        if (found == 1) {
+        if (found == 1 && getBit(erosion_image, i-j, j) == 0) {
           particleDivider(erosion_image, coords[0], coords[1], (i-j)+1, j-1, treshold, 4);
           found = 0;
         }
@@ -232,7 +232,7 @@ void firstSeparation(char erosion_image[numByte], int treshold) {
           found = 1;
         }
       } else {
-          if (found == 1) {
+          if (found == 1 && getBit(erosion_image, i, j + (BMP_HEIGTH - i)) == 0) {
             particleDivider(erosion_image, coords[0], coords[1], i+1, (j + (BMP_HEIGTH - i)) -1, treshold, 4);
             found = 0;
           }
@@ -240,7 +240,7 @@ void firstSeparation(char erosion_image[numByte], int treshold) {
     }
   }
 
-
+ */
 
 
 
@@ -277,26 +277,29 @@ void particleDivider(char erosion_image[numByte], int iStart, int jStart, int iE
   // NW - SE
   } else if (version == 3) {
     length = (int) sqrt( ((iEnd - iStart) + 1)*((iEnd - iStart) + 1) + ((jEnd - jStart) + 1)*((jEnd - jStart) + 1));
+    //length = jEnd - jStart;
     nbSep = length / treshold;
     itt = length / (nbSep + 1);
 
     for (int xy = 1; xy <= nbSep; xy++) {
       flipBit(erosion_image, iStart + (xy*itt), jStart + (xy* itt));
     }
-
+ 
 
   // SW - NE
-  } else if (version == 4) {
+/*    } else if (version == 4) {
     length = (int) sqrt( ((iStart - iEnd) + 1)*((iStart - iEnd) + 1) + ((jEnd - jStart) + 1)*((jEnd - jStart) + 1));
+    length = jEnd - jStart;
     nbSep = length / treshold;
     itt = length / (nbSep + 1);
 
     for (int xy = 1; xy <= nbSep; xy++) {
       flipBit(erosion_image, iStart - (xy*itt), jStart + (xy*itt));
-    }
-  }
+    }*/
+  }  
 
 }
+
 
 // REGULAR EROSION
 //TODO: Could test different erosion patterns.
@@ -600,7 +603,7 @@ int main(int argc, char **argv)
 
 
   for (int i = 0; i < 1; i++) {
-    firstSeparation(erosion_image, 32);
+    firstSeparation(erosion_image, 29);
     
   }
 
