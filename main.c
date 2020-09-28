@@ -47,6 +47,8 @@ int outerFrameSize = (innerFrameSize + 2); */
 
 int counter = 0;
 
+
+
 //BIT MANIPULATION
 void flipBit(char a[numByte], int i, int j)
 {
@@ -78,6 +80,9 @@ int getBit(char a[numByte], int i, int j)
   }
 }
 
+
+
+
 //Greyscaling AND conversion to binary representation
 void toBinary(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], char erosion_image[numByte])
 {
@@ -95,6 +100,115 @@ void toBinary(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], ch
       }
     }
   }
+}
+
+
+
+
+
+void firstSeparation(char erosion_image[numByte], int strike) {
+  int c = 0;
+  //HORIZONTAL CHECK
+  for (int i = 0; i < BMP_HEIGTH; i++) {
+    c = 0;
+    for (int j = 0; j < BMP_WIDTH; j++) {
+
+      if (getBit(erosion_image, i, j) == 1) {
+        c++;
+        if (c == strike) {
+          flipBit(erosion_image, i, j);
+        }
+      } else {
+        c = 0;
+      }
+
+    }
+  }
+
+    //VERTICAL CHECK
+  for (int j = 0; j < BMP_WIDTH; j++) {
+    c = 0;
+    for (int i = 0; i < BMP_HEIGTH; i++) {
+
+      if (getBit(erosion_image, i, j) == 1) {
+        c++;
+        if (c == strike) {
+          flipBit(erosion_image, i, j);
+        }
+      } else {
+        c = 0;
+      }
+
+    }
+  }
+
+  //DIAGONAL NW-SE
+
+  for (int i = 0; i < BMP_HEIGTH; i++) {
+    c = 0;
+    for (int j = 0; j < BMP_WIDTH - i; j++) {
+      
+      if (getBit(erosion_image,i+j,j) == 1) {
+        c++;
+        if (c == strike) {
+          flipBit(erosion_image,i+j, j);
+        }
+      } else {
+        c = 0;
+      }
+    }
+  }
+
+    for (int j = 0; j < BMP_WIDTH; j++) {
+    c = 0;
+    for (int i = 0; i < BMP_HEIGTH - j; i++) {
+      
+      if (getBit(erosion_image,i,j+i) == 1) {
+        c++;
+        if (c == strike) {
+          flipBit(erosion_image,i, j+i);
+        }
+      } else {
+        c = 0;
+      }
+    }
+  }
+
+  // DIAGONAL SW-NE
+
+  for (int i = BMP_HEIGTH - 1; i >= 0; i--){
+    c = 0;
+    for (int j = 0; j <= i; j++) {
+      if (getBit(erosion_image, i-j, j) == 1) {
+        c++;
+        if (c == strike) {
+          flipBit(erosion_image, i-j, j);
+        }
+      } else {
+        c = 0;
+      }
+    }
+  }
+
+  for (int j = 0; j < BMP_WIDTH; j++) {
+    c = 0;
+    for (int i = BMP_HEIGTH - 1; i - j >= 0; i--){
+      if (getBit(erosion_image, i, j + (BMP_HEIGTH - i)) == 1) {
+        c++;
+        if (c == strike) {
+          flipBit(erosion_image, i, j + (BMP_HEIGTH - i));
+        }
+      } else {
+        c = 0;
+      }
+    }
+  }
+
+
+
+
+
+
 }
 
 // REGULAR EROSION
@@ -161,6 +275,7 @@ void eroder(char erosion_image[numByte], char copy_image[numByte])
 
 void capture(char erosion_image[numByte])
 {
+
   for (int i = 0; i <= BMP_WIDTH - (innerFrameSize + 2); i++)
   {
     for (int j = 0; j <= BMP_HEIGTH - (innerFrameSize + 2); j++)
@@ -395,11 +510,20 @@ int main(int argc, char **argv)
 
   toBinary(input_image, erosion_image);
 
+
+
+  for (int i = 0; i < 1; i++) {
+    firstSeparation(erosion_image, 29);
+    
+  }
+
+  printPicture(erosion_image);
+
   fillCopy(erosion_image, copy_image);
 
   eroder(erosion_image, copy_image);
 
-  //binaryToBMP(erosion_image);
+  binaryToBMP(erosion_image);
   //Save image to file
 
   char finalPath[30];
