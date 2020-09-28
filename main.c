@@ -28,7 +28,7 @@ void checkInnerFrame(char erosion_image[numByte], int iInitial, int jInitial);
 int checkOuterFrame(char erosion_image[numByte], int iInitial, int jInitial);
 void markFinalImage(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int x, int y);
 void printPicture(char erosion_image[numByte]);
-
+void particleDivider(char erosion_image[numByte], int iStart, int jStart, int iEnd, int jEnd, int treshold, int version);
 //Declaring the array to store the image (unsigned char = unsigned 8 bit)
 //TODO: Convert to bit representation for the erosion image.
 unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
@@ -106,100 +106,138 @@ void toBinary(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], ch
 
 
 
-void firstSeparation(char erosion_image[numByte], int strike) {
-  int c = 0;
+
+
+void firstSeparation(char erosion_image[numByte], int treshold) {
+  char coords[2]; // iStart, jStart, iEnd, jEnd
+  int found = 0;
+
   //HORIZONTAL CHECK
   for (int i = 0; i < BMP_HEIGTH; i++) {
-    c = 0;
     for (int j = 0; j < BMP_WIDTH; j++) {
 
       if (getBit(erosion_image, i, j) == 1) {
-        c++;
-        if (c == strike) {
-          flipBit(erosion_image, i, j);
+        if (found == 0){
+          coords[0] = i;
+          coords[1] = j;
+          found = 1;
         }
       } else {
-        c = 0;
+        if (found == 1) {
+          particleDivider(erosion_image, coords[0], coords[1], i, j-1, treshold, 1);
+          found = 0;
+        }
       }
 
-    }
-  }
+    }  }
+
+  found = 0;
 
     //VERTICAL CHECK
   for (int j = 0; j < BMP_WIDTH; j++) {
-    c = 0;
     for (int i = 0; i < BMP_HEIGTH; i++) {
 
       if (getBit(erosion_image, i, j) == 1) {
-        c++;
-        if (c == strike) {
+        if (found == 0) {
+          coords[0] = i;
+          coords[1] = j;
+          found = 1;
+
           flipBit(erosion_image, i, j);
         }
       } else {
-        c = 0;
+          if (found == 1) {
+            particleDivider(erosion_image, coords[0], coords[1], i-1, j, treshold, 2);
+            found = 0;
+          }
       }
 
     }
-  }
+  } 
+
+  found = 0;
 
   //DIAGONAL NW-SE
 
   for (int i = 0; i < BMP_HEIGTH; i++) {
-    c = 0;
     for (int j = 0; j < BMP_WIDTH - i; j++) {
       
       if (getBit(erosion_image,i+j,j) == 1) {
-        c++;
-        if (c == strike) {
-          flipBit(erosion_image,i+j, j);
+        
+        if (found == 0) {
+          coords[0] = i+j;
+          coords[1] = j;
+          found = 1;
         }
       } else {
-        c = 0;
+        if (found == 1) {
+          particleDivider(erosion_image, coords[0], coords[1], (i+j)-1, j-1, treshold, 3);
+          found = 0;
+        }
       }
     }
   }
 
+  found = 0;
+
     for (int j = 0; j < BMP_WIDTH; j++) {
-    c = 0;
     for (int i = 0; i < BMP_HEIGTH - j; i++) {
       
       if (getBit(erosion_image,i,j+i) == 1) {
-        c++;
-        if (c == strike) {
-          flipBit(erosion_image,i, j+i);
+        if (found == 0) {
+          coords[0] = i;
+          coords[1] = j+i;
+          found = 1;
         }
       } else {
-        c = 0;
+          if (found == 1) {
+            particleDivider(erosion_image, coords[0], coords[1], i-1, (j+i)-1, treshold, 3);
+            found = 0;
+          }
       }
     }
   }
+
+  found = 0;
 
   // DIAGONAL SW-NE
 
   for (int i = BMP_HEIGTH - 1; i >= 0; i--){
-    c = 0;
     for (int j = 0; j <= i; j++) {
       if (getBit(erosion_image, i-j, j) == 1) {
-        c++;
-        if (c == strike) {
-          flipBit(erosion_image, i-j, j);
+        if (found == 0) {
+          coords[0] = i-j;
+          coords[1] = j;
+          found = 1;
+
         }
       } else {
-        c = 0;
+        if (found == 1) {
+          particleDivider(erosion_image, coords[0], coords[1], (i-j)+1, j-1, treshold, 4);
+          found = 0;
+        }
       }
     }
   }
 
+  found = 0;
+
   for (int j = 0; j < BMP_WIDTH; j++) {
-    c = 0;
+    
     for (int i = BMP_HEIGTH - 1; i - j >= 0; i--){
       if (getBit(erosion_image, i, j + (BMP_HEIGTH - i)) == 1) {
-        c++;
-        if (c == strike) {
+        
+        if (found == 0) {
+          coords[0] = i;
+          coords[1] = j + (BMP_HEIGTH - i);
+          found = 1;
           flipBit(erosion_image, i, j + (BMP_HEIGTH - i));
         }
       } else {
-        c = 0;
+          if (found == 1) {
+            particleDivider(erosion_image, coords[0], coords[1], i+1, (j + (BMP_HEIGTH - i)) -1, treshold, 4);
+            found = 0;
+          }
       }
     }
   }
@@ -208,6 +246,57 @@ void firstSeparation(char erosion_image[numByte], int strike) {
 
 
 
+
+}
+
+void particleDivider(char erosion_image[numByte], int iStart, int jStart, int iEnd, int jEnd, int treshold, int version) {
+
+  int length;
+  int nbSep;
+  int itt;
+  // HORIZONTAL
+  if (version == 1) {
+
+    length = (jEnd - jStart) + 1; // 65
+    nbSep = length/treshold; // 65/30 = 2
+    itt = length/(nbSep + 1); // 65/3 = 21
+
+    for (int x = 1; x <= nbSep; x++) {
+      flipBit(erosion_image, iStart, jStart + (x*itt));
+    }
+
+  // VERTICAL  
+  } else if (version == 2) {
+
+    length = (iEnd - iStart) + 1;
+    nbSep = length / treshold;
+    itt = length/(nbSep + 1);
+
+    for (int y = 1; y <= nbSep; y++) {
+      flipBit(erosion_image, iStart + (y*itt), jStart);
+    }
+
+  // NW - SE
+  } else if (version == 3) {
+    length = (int) sqrt( ((iEnd - iStart) + 1)*((iEnd - iStart) + 1) + ((jEnd - jStart) + 1)*((jEnd - jStart) + 1));
+    nbSep = length / treshold;
+    itt = length / (nbSep + 1);
+
+    for (int xy = 1; xy <= nbSep; xy++) {
+      flipBit(erosion_image, iStart + (xy*itt), jStart + (xy* itt));
+    }
+
+
+  // SW - NE
+  } else if (version == 4) {
+    length = (int) sqrt( ((iStart - iEnd) + 1)*((iStart - iEnd) + 1) + ((jEnd - jStart) + 1)*((jEnd - jStart) + 1));
+    nbSep = length / treshold;
+    itt = length / (nbSep + 1);
+
+    for (int xy = 1; xy <= nbSep; xy++) {
+      flipBit(erosion_image, iStart - (xy*itt), jStart + (xy*itt));
+    }
+  }
 
 }
 
@@ -513,9 +602,11 @@ int main(int argc, char **argv)
 
 
   for (int i = 0; i < 1; i++) {
-    firstSeparation(erosion_image, 21);
+    firstSeparation(erosion_image, 32);
     
   }
+
+
 
   printPicture(erosion_image);
 
