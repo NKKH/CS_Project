@@ -40,18 +40,18 @@ unsigned char test_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]; //Used only for t
 char erosion_image[numByte] = {0};  //used to erode image
 char copy_image[numByte] = {0}; //used as reference for erosion
 char capturedCoord[numByte] = {0};
-clock_t start, end;
-double cpu_time_used;
+int counter = 0;
 
 //For testing:
 unsigned char pictureIncrementer = 0;
 
-//TODO: Could experiment with larger intervals for capture.
-/* int nbJumps = ((2 * ((BMP_WIDTH - 2)/innerFrameSize)) - 1);
-int jumpSize = (innerFrameSize/2); 
-int outerFrameSize = (innerFrameSize + 2); */
+clock_t start, end;
+double erosionTime = 0;
+double toBinaryTime = 0;
+double separationTime=0;
+double totalTime = 0;
 
-int counter = 0;
+
 
 
 
@@ -602,37 +602,33 @@ int main(int argc, char **argv)
   printf("Example program - 02132 - A1\n");
 
 
-for (int i = 0; i < 1; i++) {
+  for (int i = 0 ; i< 5 ; i++){
+  read_bitmap(argv[1], input_image);
+  
+  start = clock();
+  toBinary(input_image, erosion_image);
+  end = clock();
+  toBinaryTime += end - start;
 
-start = clock();
-/* The code that has to be measured. */
+  start = clock();
+  firstSeparation(erosion_image, threshold);
+  end = clock();
+  separationTime = end - start;
 
+  fillCopy(erosion_image, copy_image);
 
-//Load image from file
-read_bitmap(argv[1], input_image);
-toBinary(input_image, erosion_image);
+  start = clock();
+  eroder(erosion_image, copy_image);
+  end = clock();
+  erosionTime += end - start;
+  }
 
-firstSeparation(erosion_image, threshold);
-    
-printPicture(erosion_image);
+  toBinaryTime = (toBinaryTime * 1000.0 / CLOCKS_PER_SEC)/5;
+  erosionTime = (erosionTime * 1000.0 / CLOCKS_PER_SEC)/5;
+  separationTime = (separationTime * 1000.0 / CLOCKS_PER_SEC)/5
+  totalTime = toBinaryTime + erosionTime;
 
-fillCopy(erosion_image, copy_image);
-
-eroder(erosion_image, copy_image);
-
-binaryToBMP(erosion_image);
-  //Save image to file
-
-char finalPath[30];
-sprintf(finalPath, "results\\%s",argv[2]);
-write_bitmap(input_image, finalPath);
-
-end = clock();
-
-cpu_time_used = end - start;
-printf("Time for run %d : %f ms\n",i, cpu_time_used * 1000.0 /CLOCKS_PER_SEC);
-
-}
+  printf("\n toBinaryTime: %f \n ErosionTime: %f \n SeparationTime: %f \n TotalTime: %f\n\n", toBinaryTime,erosionTime,separationTime,totalTime);
 
 printf("Done! \n Count: %d\n", counter);
 return 0;
