@@ -419,7 +419,7 @@ int main(int argc, char **argv)
   erosionTime = (erosionTime * 1000.0 / CLOCKS_PER_SEC)/5;
   totalTime = toBinaryTime + erosionTime;
 
-  printf("toBinaryTime: %f \n ErosionTime: %f \n TotalTime: %f", toBinaryTime,erosionTime,totalTime);
+  printf("\n toBinaryTime: %f \n ErosionTime: %f \n TotalTime: %f\n\n", toBinaryTime,erosionTime,totalTime);
 
   //binaryToBMP(erosion_image);
   //Save image to file
