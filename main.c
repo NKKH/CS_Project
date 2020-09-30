@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "cbmp.h"
+#include "time.h"
 
 //TODO: Put these in a different file, and then include
 void fillCopy(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH], unsigned char copy_image[BMP_WIDTH][BMP_HEIGTH]);
@@ -27,6 +28,13 @@ unsigned char test_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
 unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH];
 unsigned char copy_image[BMP_WIDTH][BMP_HEIGTH];
 unsigned char capturedCoord[BMP_WIDTH][BMP_HEIGTH];
+clock_t start, end;
+double cpu_time_used;
+double fillTime;
+double erosionTime;
+double greyandbitTime;
+double totalTime;
+
 
 //TODO: Try different capture frames.
 #define innerFrameSize 12
@@ -286,21 +294,55 @@ int main(int argc, char **argv)
 
   printf("Example program - 02132 - A1\n");
 
+
+for (int i = 0; i < 5; i++) {
   //Load image from file
   read_bitmap(argv[1], input_image);
 
   //Run inversion
+  start = clock();
   toGreyScale(input_image, erosion_image);
-
   toBinary(erosion_image);
+  end = clock();
+  cpu_time_used = end - start;
+  greyandbitTime = greyandbitTime + cpu_time_used;
+  printf("Run %d   GREYANDBIT Time : %f ms\n",i+1, cpu_time_used * 1000.0 /CLOCKS_PER_SEC);
 
+
+  start = clock();
   fillCopy(erosion_image, copy_image);
+  end = clock();
+  cpu_time_used = end - start;
+  fillTime = fillTime + cpu_time_used;
+  printf("Run %d   FILL Time : %f ms\n",i+1, cpu_time_used * 1000.0 /CLOCKS_PER_SEC);
+
+  start= clock();
   eroder(erosion_image, copy_image, iterations);
+  end = clock();
+  cpu_time_used = end - start;
+  erosionTime = erosionTime + cpu_time_used;
+  printf("Run %d   EROSION Time : %f ms\n",i+1, cpu_time_used * 1000.0 /CLOCKS_PER_SEC);
+
+
 
   //binaryToBMP(erosion_image);
   //Save image to file
   write_bitmap(input_image, argv[2]);
 
-  printf("Done! Count: %d\n", counter);
+
+  printf("Done! Count: %d\n\n", counter);
+
+  /* The code that has to be measured. */
+
+
+
+
+}
+
+  printf("TOTAAAAAL GREYANDBITTime AVG : %f ms\n", (greyandbitTime * 1000.0 /CLOCKS_PER_SEC)/5.0);
+  printf("TOTAAAAAL FILLTime AVG : %f ms\n", (fillTime * 1000.0 /CLOCKS_PER_SEC)/5.0);
+  printf("TOTAAAAAL EROSION TIME AVG : %f ms\n", (erosionTime * 1000.0 /CLOCKS_PER_SEC)/5.0);
+
+
   return 0;
 }
