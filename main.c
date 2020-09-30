@@ -401,8 +401,6 @@ int main(int argc, char **argv)
   //Load image from file
   for (int i = 0 ; i< 5 ; i++){
   read_bitmap(argv[1], input_image);
-
-
   
   start = clock();
   toBinary(input_image, erosion_image);
