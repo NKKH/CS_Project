@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include "cbmp.h"
 #include <math.h>
+#include <time.h>
 
 //TODO: Try different capture frames.
 #define innerFrameSize 12
@@ -36,16 +37,18 @@ unsigned char test_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]; //Used only for t
 char erosion_image[numByte] = {0};  //used to erode image
 char copy_image[numByte] = {0}; //used as reference for erosion
 char capturedCoord[numByte] = {0};
+int counter = 0;
 
 //For testing:
 unsigned char pictureIncrementer = 0;
 
-//TODO: Could experiment with larger intervals for capture.
-/* int nbJumps = ((2 * ((BMP_WIDTH - 2)/innerFrameSize)) - 1);
-int jumpSize = (innerFrameSize/2); 
-int outerFrameSize = (innerFrameSize + 2); */
+double erosionTime = 0;
+double toBinaryTime = 0;
+double totalTime = 0;
 
-int counter = 0;
+clock_t start, end;
+
+
 
 //BIT MANIPULATION
 void setBit(char a[numByte], int i, int j)
@@ -391,17 +394,28 @@ int main(int argc, char **argv)
 
   printf("Example program - 02132 - A1\n");
 
-  //Load image from file
+   for (int i = 0 ; i< 5 ; i++){
   read_bitmap(argv[1], input_image);
-
+  
+  start = clock();
   toBinary(input_image, erosion_image);
+  end = clock();
+  toBinaryTime += end - start;
 
   fillCopy(erosion_image, copy_image);
 
+  start = clock();
   eroder(erosion_image, copy_image);
+  end = clock();
+  erosionTime += end - start;
+  }
 
-  //binaryToBMP(erosion_image);
-  //Save image to file
+  toBinaryTime = (toBinaryTime * 1000.0 / CLOCKS_PER_SEC)/5;
+  erosionTime = (erosionTime * 1000.0 / CLOCKS_PER_SEC)/5;
+  totalTime = toBinaryTime + erosionTime;
+
+  printf("\n toBinaryTime: %f \n ErosionTime: %f \n TotalTime: %f\n\n", toBinaryTime,erosionTime,totalTime);
+
 
   char finalPath[30];
   sprintf(finalPath, "results\\%s",argv[2]);
