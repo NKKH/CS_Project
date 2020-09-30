@@ -20,6 +20,7 @@
 #define innerFrameSize 12
 #define byteLength 8
 #define numByte (BMP_WIDTH * BMP_HEIGTH) / (byteLength) + (BMP_WIDTH * BMP_HEIGTH) % (byteLength)
+#define threshold 30
 
 //TODO: Put these in a different file, and then include (PROTOTYPING)
 void fillCopy(char erosion_image[numByte], char copy_image[numByte]);
@@ -94,7 +95,7 @@ void toBinary(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], ch
       color = (input_image[x][y][0] + input_image[x][y][1] + input_image[x][y][2]) / 3;
 
       //set bit to 1 if white.
-      if (color > 100)
+      if (color > 90)
       {
         flipBit(erosion_image, x, y);
       }
@@ -158,7 +159,7 @@ void firstSeparation(char erosion_image[numByte], int treshold) {
 
   //DIAGONAL NW-SE
 
-  for (int i = 0; i < BMP_HEIGTH; i++) {
+/*   for (int i = 0; i < BMP_HEIGTH; i++) {
     for (int j = 0; j < BMP_WIDTH - i; j++) {
       
       if (getBit(erosion_image,i+j,j) == 1) {
@@ -198,7 +199,7 @@ void firstSeparation(char erosion_image[numByte], int treshold) {
   }
 
   found = 0;
-
+ */
   // DIAGONAL SW-NE
 
 /*   for (int i = BMP_HEIGTH - 1; i >= 0; i--){
@@ -275,7 +276,7 @@ void particleDivider(char erosion_image[numByte], int iStart, int jStart, int iE
     }
 
   // NW - SE
-  } else if (version == 3) {
+/*   } else if (version == 3) {
     length = (int) sqrt( ((iEnd - iStart) + 1)*((iEnd - iStart) + 1) + ((jEnd - jStart) + 1)*((jEnd - jStart) + 1));
     //length = jEnd - jStart;
     nbSep = length / treshold;
@@ -284,7 +285,7 @@ void particleDivider(char erosion_image[numByte], int iStart, int jStart, int iE
     for (int xy = 1; xy <= nbSep; xy++) {
       flipBit(erosion_image, iStart + (xy*itt), jStart + (xy* itt));
     }
- 
+  */
 
   // SW - NE
 /*    } else if (version == 4) {
@@ -603,7 +604,7 @@ int main(int argc, char **argv)
 
 
   for (int i = 0; i < 1; i++) {
-    firstSeparation(erosion_image, 29);
+    firstSeparation(erosion_image, threshold);
     
   }
 
