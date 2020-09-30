@@ -36,6 +36,7 @@ double greyandbitTime;
 double totalTime;
 
 
+
 //TODO: Try different capture frames.
 #define innerFrameSize 12
 #define iterations 15
@@ -48,25 +49,17 @@ int outerFrameSize = (innerFrameSize + 2); */
 int counter = 0;
 
 //TODO: One could do Greyscaling and binary-transformation at the same time
-void toGreyScale(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH])
+void toBinary(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH])
 {
-  for (int x = 0; x < BMP_WIDTH; x++)
-  {
-    for (int y = 0; y < BMP_HEIGTH; y++)
-    {
-      erosion_image[x][y] = (input_image[x][y][0] + input_image[x][y][1] + input_image[x][y][2]) / 3;
-    }
-  }
-}
+  int color = 0;
 
-void toBinary(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH])
-{
-  unsigned char color;
   for (int x = 0; x < BMP_WIDTH; x++)
   {
     for (int y = 0; y < BMP_HEIGTH; y++)
     {
-      if (erosion_image[x][y] <= 90)
+      color = (input_image[x][y][0] + input_image[x][y][1] + input_image[x][y][2]) / 3;
+
+      if (color <= 90)
       {
         color = 0; // black
       }
@@ -78,6 +71,8 @@ void toBinary(unsigned char erosion_image[BMP_WIDTH][BMP_HEIGTH])
     }
   }
 }
+
+
 
 
 //TODO: Could test different erosion patterns.
@@ -301,20 +296,15 @@ for (int i = 0; i < 5; i++) {
 
   //Run inversion
   start = clock();
-  toGreyScale(input_image, erosion_image);
-  toBinary(erosion_image);
+  toBinary(input_image,erosion_image);
   end = clock();
   cpu_time_used = end - start;
   greyandbitTime = greyandbitTime + cpu_time_used;
   printf("Run %d   GREYANDBIT Time : %f ms\n",i+1, cpu_time_used * 1000.0 /CLOCKS_PER_SEC);
 
 
-  start = clock();
   fillCopy(erosion_image, copy_image);
-  end = clock();
-  cpu_time_used = end - start;
-  fillTime = fillTime + cpu_time_used;
-  printf("Run %d   FILL Time : %f ms\n",i+1, cpu_time_used * 1000.0 /CLOCKS_PER_SEC);
+
 
   start= clock();
   eroder(erosion_image, copy_image, iterations);
@@ -322,7 +312,7 @@ for (int i = 0; i < 5; i++) {
   cpu_time_used = end - start;
   erosionTime = erosionTime + cpu_time_used;
   printf("Run %d   EROSION Time : %f ms\n",i+1, cpu_time_used * 1000.0 /CLOCKS_PER_SEC);
-
+}
 
 
   //binaryToBMP(erosion_image);
@@ -337,7 +327,7 @@ for (int i = 0; i < 5; i++) {
 
 
 
-}
+
 
   printf("TOTAAAAAL GREYANDBITTime AVG : %f ms\n", (greyandbitTime * 1000.0 /CLOCKS_PER_SEC)/5.0);
   printf("TOTAAAAAL FILLTime AVG : %f ms\n", (fillTime * 1000.0 /CLOCKS_PER_SEC)/5.0);
