@@ -15,12 +15,14 @@
 #include <stdio.h>
 #include "cbmp.h"
 #include <math.h>
+#include <time.h>
 
 //TODO: Try different capture frames.
 #define innerFrameSize 12
 #define byteLength 8
 #define numByte (BMP_WIDTH * BMP_HEIGTH) / (byteLength) + (BMP_WIDTH * BMP_HEIGTH) % (byteLength)
 #define threshold 30
+
 
 //TODO: Put these in a different file, and then include (PROTOTYPING)
 void fillCopy(char erosion_image[numByte], char copy_image[numByte]);
@@ -30,6 +32,7 @@ int checkOuterFrame(char erosion_image[numByte], int iInitial, int jInitial);
 void markFinalImage(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int x, int y);
 void printPicture(char erosion_image[numByte]);
 void particleDivider(char erosion_image[numByte], int iStart, int jStart, int iEnd, int jEnd, int treshold, int version);
+void eroderDiag(char erosion_image[numByte], char copy_image[numByte]);
 //Declaring the array to store the image (unsigned char = unsigned 8 bit)
 //TODO: Convert to bit representation for the erosion image.
 unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
@@ -37,6 +40,8 @@ unsigned char test_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]; //Used only for t
 char erosion_image[numByte] = {0};  //used to erode image
 char copy_image[numByte] = {0}; //used as reference for erosion
 char capturedCoord[numByte] = {0};
+clock_t start, end;
+double cpu_time_used;
 
 //For testing:
 unsigned char pictureIncrementer = 0;
@@ -596,33 +601,39 @@ int main(int argc, char **argv)
 
   printf("Example program - 02132 - A1\n");
 
-  //Load image from file
-  read_bitmap(argv[1], input_image);
 
-  toBinary(input_image, erosion_image);
+for (int i = 0; i < 1; i++) {
+
+start = clock();
+/* The code that has to be measured. */
 
 
+//Load image from file
+read_bitmap(argv[1], input_image);
+toBinary(input_image, erosion_image);
 
-  for (int i = 0; i < 1; i++) {
-    firstSeparation(erosion_image, threshold);
+firstSeparation(erosion_image, threshold);
     
-  }
+printPicture(erosion_image);
 
+fillCopy(erosion_image, copy_image);
 
+eroder(erosion_image, copy_image);
 
-  printPicture(erosion_image);
-
-  fillCopy(erosion_image, copy_image);
-
-  eroder(erosion_image, copy_image);
-
-  binaryToBMP(erosion_image);
+binaryToBMP(erosion_image);
   //Save image to file
 
-  char finalPath[30];
-  sprintf(finalPath, "results\\%s",argv[2]);
-  write_bitmap(input_image, finalPath);
+char finalPath[30];
+sprintf(finalPath, "results\\%s",argv[2]);
+write_bitmap(input_image, finalPath);
 
-  printf("Done! \n Count: %d\n", counter);
-  return 0;
+end = clock();
+
+cpu_time_used = end - start;
+printf("Time for run %d : %f ms\n",i, cpu_time_used * 1000.0 /CLOCKS_PER_SEC);
+
+}
+
+printf("Done! \n Count: %d\n", counter);
+return 0;
 }
