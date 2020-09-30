@@ -618,7 +618,7 @@ int main(int argc, char **argv)
   fillCopy(erosion_image, copy_image);
 
   start = clock();
-  eroder(erosion_image, copy_image);
+  eroderDiag(erosion_image, copy_image);
   end = clock();
   erosionTime += end - start;
   }
