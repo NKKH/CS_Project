@@ -20,7 +20,8 @@
 //TODO: Try different capture frames.
 #define innerFrameSize 12
 #define byteLength 8
-#define numByte (BMP_WIDTH * BMP_HEIGTH) / (byteLength) + (BMP_WIDTH * BMP_HEIGTH) % (byteLength)
+//Numbyte should probably just be divided by bytelength + 1
+#define numByte (BMP_WIDTH * BMP_HEIGTH) / (byteLength) + 1
 #define threshold 30
 
 
@@ -629,6 +630,10 @@ int main(int argc, char **argv)
   totalTime = toBinaryTime +separationTime+ erosionTime;
 
   printf("\n toBinaryTime: %f \n ErosionTime: %f \n SeparationTime: %f \n TotalTime: %f\n\n", toBinaryTime,erosionTime,separationTime,totalTime);
+
+
+
+write_bitmap(input_image,finalPath)
 
 printf("Done! \n Count: %d\n", counter);
 return 0;
