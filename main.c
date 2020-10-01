@@ -24,7 +24,7 @@
 
 // #define numByte (BMP_WIDTH * BMP_HEIGTH) / (byteLength) +(BMP_WIDTH * BMP_HEIGTH) % (byteLength)
 #define numByte (BMP_WIDTH * BMP_HEIGTH) / (byteLength) + 1
-#define threshold 30
+#define cellDetectionThreshold 30
 
 //TODO: Put these in a different file, and then include (PROTOTYPING)
 void fillCopy(char erosion_image[numByte], char copy_image[numByte]);
@@ -56,11 +56,12 @@ double totalTime = 0;
 //BIT MANIPULATION
 void flipBit(char a[numByte], int i, int j)
 {
-  //On the first byte, we will ignore the first 1, since index = 8/8 will result in accessing the second byte. Henceforth, we utilize every bit in our byte array.
+  //On the first byte, we will ignore the first bit, since index = 8/8 will result in accessing the second byte. Henceforth, we utilize every bit in our byte array.
   int area = ((i + 1) * (j + 1) + (i) * (BMP_WIDTH - (j + 1)));
 
   int index = area >> 3;
-  int numBit = area & (byteLength - 1);
+  
+  int numBit = area & (byteLength - 1); //Modular operation
 
   //Go to "index" byte, and flip the "numBit" bit, then conduct a XOR operations to flip.
   a[index] = a[index] ^ (1 << numBit);
@@ -614,7 +615,7 @@ int main(int argc, char **argv)
     toBinaryTime += end - start;
 
     start = clock();
-    firstSeparation(erosion_image, threshold);
+    firstSeparation(erosion_image, cellDetectionThreshold);
     end = clock();
     separationTime = end - start;
 
