@@ -633,7 +633,9 @@ int main(int argc, char **argv)
 
 
 
-write_bitmap(input_image,finalPath)
+  char finalPath[30];
+  sprintf(finalPath, "results\\%s",argv[2]);
+  write_bitmap(input_image, finalPath);
 
 printf("Done! \n Count: %d\n", counter);
 return 0;
