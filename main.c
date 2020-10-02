@@ -399,7 +399,7 @@ int main(int argc, char **argv)
   printf("Example program - 02132 - A1\n");
 
   //Load image from file
-  for (int i = 0 ; i< 5 ; i++){
+  for (int i = 0 ; i< 10 ; i++){
   read_bitmap(argv[1], input_image);
   
   start = clock();
@@ -413,10 +413,11 @@ int main(int argc, char **argv)
   eroder(erosion_image, copy_image);
   end = clock();
   erosionTime += end - start;
-  }
+  printf("Run : %d  toBinary : %f       erosion : %f \n",i+1, toBinaryTime, erosionTime);
+    }
 
-  toBinaryTime = (toBinaryTime * 1000.0 / CLOCKS_PER_SEC)/5;
-  erosionTime = (erosionTime * 1000.0 / CLOCKS_PER_SEC)/5;
+  toBinaryTime = (toBinaryTime * 1000.0 / CLOCKS_PER_SEC)/10;
+  erosionTime = (erosionTime * 1000.0 / CLOCKS_PER_SEC)/10;
   totalTime = toBinaryTime + erosionTime;
 
   printf("\n toBinaryTime: %f \n ErosionTime: %f \n TotalTime: %f\n\n", toBinaryTime,erosionTime,totalTime);
