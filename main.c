@@ -21,6 +21,7 @@
 #define innerFrameSize 12
 #define byteLength 8
 #define numByte (BMP_WIDTH * BMP_HEIGTH) / (byteLength) + (BMP_WIDTH * BMP_HEIGTH) % (byteLength)
+#define oneThird 1.0/3.0
 
 //TODO: Put these in a different file, and then include (PROTOTYPING)
 void fillCopy(char erosion_image[numByte], char copy_image[numByte]);
@@ -88,7 +89,7 @@ void toBinary(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], ch
   {
     for (int y = 0; y < BMP_HEIGTH; y++)
     {
-      color = (input_image[x][y][0] + input_image[x][y][1] + input_image[x][y][2]) / 3;
+      color = (input_image[x][y][0] + input_image[x][y][1] + input_image[x][y][2]) * oneThird;
 
       //set bit to 1 if white.
       if (color > 90)
@@ -393,7 +394,7 @@ int main(int argc, char **argv)
   printf("Example program - 02132 - A1\n");
 
   //Load image from file
-  for (int i = 0 ; i< 5 ; i++){
+  for (int i = 0 ; i< 10; i++){
   read_bitmap(argv[1], input_image);
   
   start = clock();
@@ -407,10 +408,12 @@ int main(int argc, char **argv)
   eroder(erosion_image, copy_image);
   end = clock();
   erosionTime += end - start;
+
+  printf("Run %d     toBinary : %f       erosion : %f\n", i+1, toBinaryTime, erosionTime);
   }
 
-  toBinaryTime = (toBinaryTime * 1000.0 / CLOCKS_PER_SEC)/5;
-  erosionTime = (erosionTime * 1000.0 / CLOCKS_PER_SEC)/5;
+  toBinaryTime = (toBinaryTime * 1000.0 / CLOCKS_PER_SEC)/10.0;
+  erosionTime = (erosionTime * 1000.0 / CLOCKS_PER_SEC)/10.0;
   totalTime = toBinaryTime + erosionTime;
 
   printf(" \n toBinaryTime: %f \n ErosionTime: %f \n TotalTime: %f \n\n" , toBinaryTime,erosionTime,totalTime);
