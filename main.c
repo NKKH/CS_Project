@@ -9,7 +9,7 @@
 //To run (win): main.exe 1MEDIUM.bmp 1MEDIUM_done.bmp
 //To run (win): main.exe 1HARD.bmp 1HARD_done.bmp
 
-//main.exe samples\medium\1MEDIUM.bmp 1MEDIUM_done.bmp
+//main.exe samples\hard\3HARD.bmp 3HARD_done.bmp
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -43,6 +43,7 @@ char erosion_image[numByte] = {0};                             //used to erode i
 char copy_image[numByte] = {0};                                //used as reference for erosion
 char capturedCoord[numByte] = {0};
 int counter = 0;
+int cccc = 0;
 
 //For testing:
 unsigned char pictureIncrementer = 0;
@@ -314,7 +315,7 @@ void particleDivider(char erosion_image[numByte], int iStart, int jStart, int iE
 //TODO: Could test different erosion patterns.
 //TODO: Erode until no more white pixels.
 void eroder(char erosion_image[numByte], char copy_image[numByte])
-{
+{ 
 
   unsigned char erode = 0;
   unsigned char whiteFound = 0;
@@ -389,7 +390,8 @@ void capture(char erosion_image[numByte])
 }
 
 void eroderDiag(char erosion_image[numByte], char copy_image[numByte])
-{
+{ 
+  cccc++;
   unsigned char erode = 0;
   unsigned char whiteFound = 0;
 
@@ -603,7 +605,7 @@ int main(int argc, char **argv)
   }
 
   printf("Example program - 02132 - A1\n");
-  int timeTests = 1;
+  int timeTests = 10;
 
   for (int i = 0; i < timeTests; i++)
   {
@@ -617,7 +619,7 @@ int main(int argc, char **argv)
     start = clock();
     firstSeparation(erosion_image, cellDetectionThreshold);
     end = clock();
-    separationTime = end - start;
+    separationTime = end - start; 
 
     fillCopy(erosion_image, copy_image);
 
@@ -625,14 +627,18 @@ int main(int argc, char **argv)
     eroderDiag(erosion_image, copy_image);
     end = clock();
     erosionTime += end - start;
+
+    printf("Run %d     toBinary : %f     firstSep :   %f      erosiondiag : %f \n", i+1, toBinaryTime, separationTime, erosionTime);
   }
+
+
 
   toBinaryTime = (toBinaryTime * 1000.0 / CLOCKS_PER_SEC) / timeTests;
   erosionTime = (erosionTime * 1000.0 / CLOCKS_PER_SEC) / timeTests;
   separationTime = (separationTime * 1000.0 / CLOCKS_PER_SEC) / timeTests;
   totalTime = toBinaryTime + separationTime + erosionTime;
 
-  printf("\n toBinaryTime: %f \n ErosionTime: %f \n SeparationTime: %f \n TotalTime: %f\n\n", toBinaryTime, erosionTime, separationTime, totalTime);
+  printf("\n ccccc = %d      toBinaryTime: %f \n ErosionTime: %f \n SeparationTime: %f \n TotalTime: %f\n\n",cccc, toBinaryTime, erosionTime, separationTime, totalTime);
 
   char finalPath[30];
   sprintf(finalPath, "results\\%s", argv[2]);
