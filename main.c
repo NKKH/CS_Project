@@ -1,32 +1,15 @@
-//To compile (linux/mac): gcc cbmp.c main.c -o main.out -std=c99
-//To run (linux/mac): ./main.out test1.bmp test1_grey.bmp
-
-//cd C:\Users\Admin\Desktop\Computer systems\Project\CS_Project
-//cd C:\Users\schle\penumbral_eclipse\CS_Project
-//To compile (win): gcc cbmp.c main.c -o main.exe -std=c99
-
-//To run (win): main.exe example.bmp example_done.bmp
-//To run (win): main.exe 1MEDIUM.bmp 1MEDIUM_done.bmp
-//To run (win): main.exe 1HARD.bmp 1HARD_done.bmp
-
-//main.exe samples\hard\3HARD.bmp 3HARD_done.bmp
-
 #include <stdlib.h>
 #include <stdio.h>
 #include "cbmp.h"
 #include <math.h>
 #include <time.h>
 
-//TODO: Try different capture frames.
 #define innerFrameSize 12
 #define byteLength 8
-
-
-// #define numByte (BMP_WIDTH * BMP_HEIGTH) / (byteLength) +(BMP_WIDTH * BMP_HEIGTH) % (byteLength)
 #define numByte (BMP_WIDTH * BMP_HEIGTH) / (byteLength) + 1
 #define cellDetectionThreshold 30
+#define oneThird 1.0/3.0
 
-//TODO: Put these in a different file, and then include (PROTOTYPING)
 void fillCopy(char erosion_image[numByte], char copy_image[numByte]);
 void capture(char erosion_image[numByte]);
 void checkInnerFrame(char erosion_image[numByte], int iInitial, int jInitial);
@@ -36,29 +19,19 @@ void printPicture(char erosion_image[numByte]);
 void particleDivider(char erosion_image[numByte], int iStart, int jStart, int iEnd, int jEnd, int treshold, int version);
 void eroderDiag(char erosion_image[numByte], char copy_image[numByte]);
 //Declaring the array to store the image (unsigned char = unsigned 8 bit)
-//TODO: Convert to bit representation for the erosion image.
 unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
-unsigned char test_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]; //Used only for testing..
 char erosion_image[numByte] = {0};                             //used to erode image
 char copy_image[numByte] = {0};                                //used as reference for erosion
 char capturedCoord[numByte] = {0};
-int counter = 0;
-int cccc = 0;
+int counter = 0;                                              
 
-//For testing:
-unsigned char pictureIncrementer = 0;
-
-clock_t start, end;
-double erosionTime = 0;
-double toBinaryTime = 0;
-double separationTime = 0;
-double totalTime = 0;
 
 //BIT MANIPULATION
 void flipBit(char a[numByte], int i, int j)
 {
   //On the first byte, we will ignore the first bit, since index = 8/8 will result in accessing the second byte. Henceforth, we utilize every bit in our byte array.
   int area = ((i + 1) * (j + 1) + (i) * (BMP_WIDTH - (j + 1)));
+  // area is the number of pixels/bits that come before our pixel at position (i,j)
 
   int index = area >> 3;
   
@@ -94,7 +67,7 @@ void toBinary(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], ch
   {
     for (int y = 0; y < BMP_HEIGTH; y++)
     {
-      color = (input_image[x][y][0] + input_image[x][y][1] + input_image[x][y][2]) / 3;
+      color = (input_image[x][y][0] + input_image[x][y][1] + input_image[x][y][2]) * oneThird;
 
       //set bit to 1 if white.
       if (color > 90)
@@ -105,8 +78,12 @@ void toBinary(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], ch
   }
 }
 
+
 void firstSeparation(char erosion_image[numByte], int treshold)
 {
+
+  // We get the coordinates of a first white pixel, and the last white pixel of a streak. Then call particleDivider()
+
   int coords[2]; // iStart, jStart
   int found = 0;
 
@@ -165,96 +142,17 @@ void firstSeparation(char erosion_image[numByte], int treshold)
   }
 
   found = 0;
-
-  //DIAGONAL NW-SE
-
-  /*   for (int i = 0; i < BMP_HEIGTH; i++) {
-    for (int j = 0; j < BMP_WIDTH - i; j++) {
-      
-      if (getBit(erosion_image,i+j,j) == 1) {
-        
-        if (found == 0) {
-          coords[0] = i+j;
-          coords[1] = j;
-          found = 1;
-        }
-      } else {
-        if (found == 1 && getBit(erosion_image,i+j,j) == 0) {
-          particleDivider(erosion_image, coords[0], coords[1], (i+j)-1, j-1, treshold, 3);
-          found = 0;
-        }
-      }
-    }
-  }
-
-  found = 0;
-
-    for (int j = 0; j < BMP_WIDTH; j++) {
-    for (int i = 0; i < BMP_HEIGTH - j; i++) {
-      
-      if (getBit(erosion_image,i,j+i) == 1) {
-        if (found == 0) {
-          coords[0] = i;
-          coords[1] = j+i;
-          found = 1;
-        }
-      } else {
-          if (found == 1 && getBit(erosion_image,i,j+i) == 0) {
-            particleDivider(erosion_image, coords[0], coords[1], i-1, (j+i)-1, treshold, 3);
-            found = 0;
-          }
-      }
-    }
-  }
-
-  found = 0;
- */
-  // DIAGONAL SW-NE
-
-  /*   for (int i = BMP_HEIGTH - 1; i >= 0; i--){
-    for (int j = 0; j <= i; j++) {
-      if (getBit(erosion_image, i-j, j) == 1) {
-        if (found == 0) {
-          coords[0] = i-j;
-          coords[1] = j;
-          found = 1;
-
-        }
-      } else {
-        if (found == 1 && getBit(erosion_image, i-j, j) == 0) {
-          particleDivider(erosion_image, coords[0], coords[1], (i-j)+1, j-1, treshold, 4);
-          found = 0;
-        }
-      }
-    }
-  }
-
-  found = 0;
-
-  for (int j = 0; j < BMP_WIDTH; j++) {
-    
-    for (int i = BMP_HEIGTH - 1; i - j >= 0; i--){
-      if (getBit(erosion_image, i, j + (BMP_HEIGTH - i)) == 1) {
-        
-        if (found == 0) {
-          coords[0] = i;
-          coords[1] = j + (BMP_HEIGTH - i);
-          found = 1;
-        }
-      } else {
-          if (found == 1 && getBit(erosion_image, i, j + (BMP_HEIGTH - i)) == 0) {
-            particleDivider(erosion_image, coords[0], coords[1], i+1, (j + (BMP_HEIGTH - i)) -1, treshold, 4);
-            found = 0;
-          }
-      }
-    }
-  }
-
- */
 }
 
+
+// CALLED FROM firstSeparation() WHEN A CLUMP HAS BEEN DETECTED
 void particleDivider(char erosion_image[numByte], int iStart, int jStart, int iEnd, int jEnd, int treshold, int version)
 {
+
+  // Length is calculated as the number of white pixels in a row
+  // We divide length by treshold and round to floor, to estimate the number of particles we have
+  // Then we divide length by the number of particles found, to estimate the distance between them, and to erode these points.
+  
 
   int length;
   int nbSep;
@@ -263,9 +161,9 @@ void particleDivider(char erosion_image[numByte], int iStart, int jStart, int iE
   if (version == 1)
   {
 
-    length = (jEnd - jStart) + 1; // 65
-    nbSep = length / treshold;    // 65/30 = 2
-    itt = length / (nbSep + 1);   // 65/3 = 21
+    length = (jEnd - jStart) + 1; 
+    nbSep = length / treshold;    
+    itt = length / (nbSep + 1);  
 
     for (int x = 1; x <= nbSep; x++)
     {
@@ -285,93 +183,10 @@ void particleDivider(char erosion_image[numByte], int iStart, int jStart, int iE
     {
       flipBit(erosion_image, iStart + (y * itt), jStart);
     }
-
-    // NW - SE
-    /*   } else if (version == 3) {
-    length = (int) sqrt( ((iEnd - iStart) + 1)*((iEnd - iStart) + 1) + ((jEnd - jStart) + 1)*((jEnd - jStart) + 1));
-    //length = jEnd - jStart;
-    nbSep = length / treshold;
-    itt = length / (nbSep + 1);
-
-    for (int xy = 1; xy <= nbSep; xy++) {
-      flipBit(erosion_image, iStart + (xy*itt), jStart + (xy* itt));
-    }
-  */
-
-    // SW - NE
-    /*    } else if (version == 4) {
-    length = (int) sqrt( ((iStart - iEnd) + 1)*((iStart - iEnd) + 1) + ((jEnd - jStart) + 1)*((jEnd - jStart) + 1));
-    length = jEnd - jStart;
-    nbSep = length / treshold;
-    itt = length / (nbSep + 1);
-
-    for (int xy = 1; xy <= nbSep; xy++) {
-      flipBit(erosion_image, iStart - (xy*itt), jStart + (xy*itt));
-    }*/
   }
 }
 
-// REGULAR EROSION
-//TODO: Could test different erosion patterns.
-//TODO: Erode until no more white pixels.
-void eroder(char erosion_image[numByte], char copy_image[numByte])
-{ 
 
-  unsigned char erode = 0;
-  unsigned char whiteFound = 0;
-  for (int x = 0; x < BMP_WIDTH; x++)
-  {
-    for (int y = 0; y < BMP_HEIGTH; y++)
-    {
-      if (getBit(erosion_image, x, y) == 1)
-      {
-        whiteFound = 1;
-
-        if (x == 0 || getBit(copy_image, x - 1, y) == 0)
-        {
-
-          erode = 1;
-        }
-
-        else if (x + 1 == BMP_WIDTH || getBit(copy_image, x + 1, y) == 0)
-        {
-
-          erode = 1;
-        }
-
-        else if (y == 0 || getBit(copy_image, x, y - 1) == 0)
-        {
-
-          erode = 1;
-        }
-
-        else if (y + 1 == BMP_HEIGTH || getBit(copy_image, x, y + 1) == 0)
-        {
-
-          erode = 1;
-        }
-
-        if (erode == 1)
-        {
-          flipBit(erosion_image, x, y);
-          erode = 0;
-        }
-      }
-    }
-  }
-
-  capture(erosion_image);
-
-  /*   //Test pictures for erosion
-  printPicture(erosion_image);
- */
-  fillCopy(erosion_image, copy_image);
-
-  if (whiteFound)
-  {
-    eroder(erosion_image, copy_image);
-  }
-}
 
 void capture(char erosion_image[numByte])
 {
@@ -389,9 +204,8 @@ void capture(char erosion_image[numByte])
   }
 }
 
-void eroderDiag(char erosion_image[numByte], char copy_image[numByte])
+void eroder(char erosion_image[numByte], char copy_image[numByte])
 { 
-  cccc++;
   unsigned char erode = 0;
   unsigned char whiteFound = 0;
 
@@ -403,7 +217,8 @@ void eroderDiag(char erosion_image[numByte], char copy_image[numByte])
       {
         whiteFound = 1;
 
-        if (x == 0 || getBit(copy_image, x - 1, y) == 0)
+        if (x == 0 || getBit(copy_image, x - 1, y) == 0)       // 8 conditions, first the cross, then the diagonals
+                                                               // if we find a black pixel, or an out of bound, we erode
         {
           erode = 1;
         }
@@ -465,7 +280,7 @@ void eroderDiag(char erosion_image[numByte], char copy_image[numByte])
 
   if (whiteFound)
   {
-    eroderDiag(erosion_image, copy_image);
+    eroder(erosion_image, copy_image);
   }
 }
 
@@ -520,7 +335,6 @@ void checkInnerFrame(char erosion_image[numByte], int iInitial, int jInitial)
   if (whiteExist)
   {
     counter++;
-    /* capturedCoord[iInitial+(innerFrameSize/2)][jInitial+(innerFrameSize/2)]=1; */ //I'd prefer the array, since you "lose" data by just painting the crosses..
     markFinalImage(input_image, iInitial + (innerFrameSize / 2), jInitial + (innerFrameSize / 2));
     whiteExist = 0;
   }
@@ -534,13 +348,6 @@ void fillCopy(char erosion_image[numByte], char copy_image[numByte])
   {
     copy_image[i] = erosion_image[i];
   }
-  /* for (int x = 0; x < BMP_WIDTH; x++)
-  {
-    for (int y = 0; y < BMP_HEIGTH; y++)
-    {
-      copy_image[x][y] = erosion_image[x][y];
-    }
-  } */
 }
 
 void markFinalImage(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int x, int y)
@@ -605,40 +412,24 @@ int main(int argc, char **argv)
   }
 
   printf("Example program - 02132 - A1\n");
-  int timeTests = 10;
 
-  for (int i = 0; i < timeTests; i++)
-  {
+
+  
     read_bitmap(argv[1], input_image);
 
-    start = clock();
-    toBinary(input_image, erosion_image);
-    end = clock();
-    toBinaryTime += end - start;
 
-    start = clock();
+    toBinary(input_image, erosion_image);
+
     firstSeparation(erosion_image, cellDetectionThreshold);
-    end = clock();
-    separationTime = end - start; 
+
 
     fillCopy(erosion_image, copy_image);
 
-    start = clock();
     eroderDiag(erosion_image, copy_image);
-    end = clock();
-    erosionTime += end - start;
-
-    printf("Run %d     toBinary : %f     firstSep :   %f      erosiondiag : %f \n", i+1, toBinaryTime, separationTime, erosionTime);
-  }
 
 
 
-  toBinaryTime = (toBinaryTime * 1000.0 / CLOCKS_PER_SEC) / timeTests;
-  erosionTime = (erosionTime * 1000.0 / CLOCKS_PER_SEC) / timeTests;
-  separationTime = (separationTime * 1000.0 / CLOCKS_PER_SEC) / timeTests;
-  totalTime = toBinaryTime + separationTime + erosionTime;
 
-  printf("\n ccccc = %d      toBinaryTime: %f \n ErosionTime: %f \n SeparationTime: %f \n TotalTime: %f\n\n",cccc, toBinaryTime, erosionTime, separationTime, totalTime);
 
   char finalPath[30];
   sprintf(finalPath, "results\\%s", argv[2]);
