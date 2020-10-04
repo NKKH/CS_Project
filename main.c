@@ -10,6 +10,7 @@
 #define cellDetectionThreshold 30
 #define oneThird 1.0 / 3.0
 
+//Function prototyping
 void fillCopy(char erosion_image[numByte], char copy_image[numByte]);
 void capture(char erosion_image[numByte]);
 void checkInnerFrame(char erosion_image[numByte], int iInitial, int jInitial);
